@@ -69,15 +69,93 @@ app.post('/getAuth', function(req, res) {
     log_('Verificando credenciais: ' + ' - ' + username)
 
     let sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "';";        
-    //log_(sql1)
 
     con.query(sql, function (err1, result) {        
-
         if (err1) throw err1;                  
         res.json({"success": result});        
     });                        
 });
 
+app.post('/getEmployees', function(req, res) {            
+
+    log_('Verificando colaboradores')
+
+    let sql = "SELECT \
+        funcionarios.id,\
+        UPPER(funcionarios.name) AS name,\
+        UPPER(funcionarios.name_comum) AS name_comum,\
+        UPPER(funcionarios.cpf) AS cpf,\
+        UPPER(funcionarios.rg) AS rg,\
+        UPPER(funcionarios.telefone) AS telefone,\
+        UPPER(funcionarios.endereco) AS endereco,\
+        UPPER(funcionarios.bairro) AS bairro,\
+        funcionarios.obs,\
+        funcionarios.foto,\
+        funcionarios.fotosamba,\
+        UPPER(funcionarios.matricula) AS matricula,\
+        funcionarios.status,\
+        crachas.id AS CRACHA_ID,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        crachas.id_cracha AS CRACHA,\
+        funcionarios_tipos.id AS id_tipo,\
+        UPPER(funcionarios_tipos.name) AS FUNCIONARIO_TIPO,\
+        UPPER(setores.name) AS SETOR,\
+        UPPER(empresas.name) AS EMPRESA,\
+        UPPER(cargos.name) AS CARGO \
+    FROM funcionarios \
+    LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
+    LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
+    LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
+    LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
+    LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
+    WHERE funcionarios.status = 1;'";
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getEmployeesByName', function(req, res) {            
+
+    let name = req.body.name
+
+    log_('Verificando colaboradores')
+
+    let sql = "SELECT \
+        funcionarios.id,\
+        UPPER(funcionarios.name) AS name,\
+        UPPER(funcionarios.name_comum) AS name_comum,\
+        UPPER(funcionarios.cpf) AS cpf,\
+        UPPER(funcionarios.rg) AS rg,\
+        UPPER(funcionarios.telefone) AS telefone,\
+        UPPER(funcionarios.endereco) AS endereco,\
+        UPPER(funcionarios.bairro) AS bairro,\
+        funcionarios.obs,\
+        funcionarios.foto,\
+        funcionarios.obs,\
+        funcionarios.fotosamba,\
+        UPPER(funcionarios.matricula) AS matricula,\
+        funcionarios.status,\
+        crachas.id_cracha AS CRACHA,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        UPPER(funcionarios_tipos.name) AS FUNCIONARIO_TIPO,\
+        UPPER(setores.name) AS SETOR,\
+        UPPER(empresas.name) AS EMPRESA,\
+        UPPER(cargos.name) AS CARGO \
+    FROM funcionarios \
+    LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
+    LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
+    LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
+    LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
+    LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
+    WHERE funcionarios.name LIKE '" + name + "';'";
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
 
 http.listen(8085);
 
