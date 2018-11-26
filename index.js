@@ -68,7 +68,7 @@ app.post('/getAuth', function(req, res) {
 
     log_('Verificando credenciais: ' + ' - ' + username)
 
-    let sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "';";        
+    let sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "' ORDER BY id LIMIT 1;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -108,7 +108,11 @@ app.post('/getEmployees', function(req, res) {
     LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
     LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
     LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
-    WHERE funcionarios.status = 1;'";
+    WHERE funcionarios.status = 1 \
+    ORDER BY funcionarios.name ASC \
+    LIMIT 0,20;";
+
+    log_(sql)
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -149,7 +153,82 @@ app.post('/getEmployeesByName', function(req, res) {
     LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
     LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
     LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
-    WHERE funcionarios.name LIKE '" + name + "';'";
+    WHERE funcionarios.name LIKE '%" + name + "%';";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getAccessGroups', function(req, res) {
+            
+    log_('Verificando Grupos de acesso')
+    
+
+    let sql = "SELECT * FROM acessos_controle_grupo;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getWorkFunctions', function(req, res) {
+            
+    log_('Verificando funções')
+    
+    let sql = "SELECT * FROM funcao;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getEmployeeTypes', function(req, res) {
+            
+    log_('Verificando Tipos de funcionários')
+    
+    let sql = "SELECT * FROM funcionarios_tipos;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getSectors', function(req, res) {
+            
+    log_('Verificando Setores')
+    
+    let sql = "SELECT * FROM setores;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getCompanies', function(req, res) {
+            
+    log_('Verificando Empresas')
+    
+    let sql = "SELECT * FROM empresas;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getOffices', function(req, res) {
+            
+    log_('Verificando Cargos')
+    
+    let sql = "SELECT * FROM cargos;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
