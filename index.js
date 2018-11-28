@@ -124,7 +124,7 @@ app.post('/getEmployeesByName', function(req, res) {
 
     let name = req.body.name
 
-    log_('Verificando colaboradores')
+    log_('Verificando colaboradores por nome ' + name)
 
     let sql = "SELECT \
         funcionarios.id,\
@@ -156,6 +156,80 @@ app.post('/getEmployeesByName', function(req, res) {
     WHERE funcionarios.name LIKE '%" + name + "%';";
 
     log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getGuests', function(req, res) {
+            
+    log_('Verificando visitantes')
+    
+    let sql = "SELECT \
+        visitantes.id,\
+        UPPER(visitantes.name) AS name,\
+        UPPER(visitantes.cpf) AS cpf,\
+        UPPER(visitantes.rg) AS rg,\
+        UPPER(visitantes.telefone) AS telefone,\
+        UPPER(visitantes.endereco) AS endereco,\
+        UPPER(visitantes.bairro) AS bairro,\
+        UPPER(visitantes.obs) AS obs,\
+        visitantes.fotosamba,\
+        visitantes.status,\
+        crachas.id AS CRACHA_ID,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        crachas.id_cracha AS CRACHA,\
+        UPPER(funcionarios.name) AS AUTORIZANTE,\
+        funcionarios.id AS AUTORIZANTE_ID,\
+        visitantes_tipos.id AS id_tipo,\
+        visitantes_tipos.name AS TIPO,\
+        UPPER(empresas.name) AS EMPRESA \
+    FROM visitantes \
+    LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
+    LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
+    LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
+    LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
+    WHERE visitantes.status = 1;"     
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getGuestsByName', function(req, res) {
+            
+    let name = req.body.name
+
+    log_('Verificando visitantes por nome ' + name)
+    
+    let sql = "SELECT \
+        visitantes.id,\
+        UPPER(visitantes.name) AS name,\
+        UPPER(visitantes.cpf) AS cpf,\
+        UPPER(visitantes.rg) AS rg,\
+        UPPER(visitantes.telefone) AS telefone,\
+        UPPER(visitantes.endereco) AS endereco,\
+        UPPER(visitantes.bairro) AS bairro,\
+        UPPER(visitantes.obs) AS obs,\
+        visitantes.fotosamba,\
+        visitantes.status,\
+        crachas.id AS CRACHA_ID,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        crachas.id_cracha AS CRACHA,\
+        UPPER(funcionarios.name) AS AUTORIZANTE,\
+        funcionarios.id AS AUTORIZANTE_ID,\
+        visitantes_tipos.id AS id_tipo,\
+        visitantes_tipos.name AS TIPO,\
+        UPPER(empresas.name) AS EMPRESA \
+    FROM visitantes \
+    LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
+    LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
+    LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
+    LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
+    WHERE visitantes.name LIKE '%" + name + "%';";
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
