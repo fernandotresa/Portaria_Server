@@ -165,10 +165,10 @@ app.post('/getEmployeesByName', function(req, res) {
 
 app.post('/getAccessGroups', function(req, res) {
             
-    log_('Verificando Grupos de acesso')
+    log_('Verificando Perfis de acesso')
     
 
-    let sql = "SELECT * FROM acessos_controle_grupo;";        
+    let sql = "SELECT * FROM acessos_controle_perfil;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -229,6 +229,18 @@ app.post('/getOffices', function(req, res) {
     log_('Verificando Cargos')
     
     let sql = "SELECT * FROM cargos;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getAccessControlTypes', function(req, res) {
+            
+    log_('Verificando tipos de controle de acesso')
+    
+    let sql = "SELECT * FROM acessos_controle_tipo;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
