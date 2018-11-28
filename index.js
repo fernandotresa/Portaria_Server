@@ -61,6 +61,43 @@ function handleDisconnect() {
 
 handleDisconnect()
 
+function createProfileExpire(req, res){
+
+    let name = req.body.name
+    let type = req.body.type
+    let desc = req.body.desc    
+
+    log_('Adicionando Perfil de acesso: ' + name)
+    
+    let sql = "INSERT INTO acessos_controle_perfil (name, id_type, description) \
+            VALUES ('"+ name + "', ( SELECT id FROM acessos_controle_tipo WHERE name = '" + type + "'), '" + desc + "');";        
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err; 
+        createProfileExpireConfig(req, res)        
+    });                            
+}
+
+function createProfileExpireConfig(req, res){
+    
+    let name = req.body.name
+    let start = req.body.start
+    let end = req.body.end
+
+    log_('Configurando Perfil de acesso: ' + name)
+    
+    let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
+            VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id ASC LIMIT 1), '" + start + "', '" + end + "');";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err; 
+        res.json({"success": result});
+    });                
+}
+
 app.post('/getAuth', function(req, res) {
         
     let username = req.body.username
@@ -242,7 +279,6 @@ app.post('/getAccessGroups', function(req, res) {
             
     log_('Verificando Perfis de acesso')
     
-
     let sql = "SELECT * FROM acessos_controle_perfil;";        
 
     con.query(sql, function (err1, result) {        
@@ -321,6 +357,10 @@ app.post('/getAccessControlTypes', function(req, res) {
         if (err1) throw err1;                  
         res.json({"success": result});        
     });                        
+});
+
+app.post('/addAccessProfileExpire', function(req, res) {            
+    createProfileExpire(req, res)    
 });
 
 http.listen(8085);
