@@ -191,7 +191,8 @@ app.post('/getGuests', function(req, res) {
     LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
     LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
     LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
-    WHERE visitantes.status = 1;"     
+    ORDER BY visitantes.name ASC \
+    LIMIT 0,20;";
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
