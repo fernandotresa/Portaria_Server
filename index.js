@@ -143,6 +143,53 @@ function createProfileDatetimeConfig(req, res){
     res.json({"success": 1});
 }
 
+function createProfileDayweek(req, res){
+
+    let name = req.body.name
+    let type = req.body.type
+    let desc = req.body.desc    
+    
+    log_('Adicionando Perfil de acesso: ' + name)    
+    
+    let sql = "INSERT INTO acessos_controle_perfil (name, id_type, description) \
+            VALUES ('"+ name + "', ( SELECT id FROM acessos_controle_tipo WHERE name = '" + type + "'), '" + desc + "');";        
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err; 
+        createProfileDayweekConfig(req, res)        
+    });                            
+}
+
+function createProfileDayweekConfig(req, res){
+    
+    let name = req.body.name    
+    let events = req.body.events   
+
+    log_('Configurando Perfil de acesso: ' + name)
+
+    events.forEach(element => {
+
+        let start = element.startTime
+        let end = element.endTime
+        let title = 'Perfil Dia semana'
+        let id = element.id
+
+        let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title, id_day) \
+            VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id ASC LIMIT 1), '" + start + "', '" + end + "', '" + title + "', " + id + ");";
+
+        log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err) throw err;             
+        });
+    });            
+     
+    res.json({"success": 1});
+}
+
+
 app.post('/getAuth', function(req, res) {
         
     let username = req.body.username
@@ -410,6 +457,10 @@ app.post('/addAccessProfileExpire', function(req, res) {
 
 app.post('/addAccessProfileDatetime', function(req, res) {            
     createProfileDatetime(req, res)        
+});
+
+app.post('/addAccessProfileDayweek', function(req, res) {            
+    createProfileDayweek(req, res)        
 });
 
 http.listen(8085);
