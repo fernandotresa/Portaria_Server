@@ -371,7 +371,10 @@ app.post('/getAccessGroups', function(req, res) {
             
     log_('Verificando Perfis de acesso')
     
-    let sql = "SELECT * FROM acessos_controle_perfil;";        
+    let sql = "SELECT acessos_controle_perfil.*,\
+            acessos_controle_tipo.name AS type \
+            FROM acessos_controle_perfil \
+        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -461,6 +464,24 @@ app.post('/addAccessProfileDatetime', function(req, res) {
 
 app.post('/addAccessProfileDayweek', function(req, res) {            
     createProfileDayweek(req, res)        
+});
+
+app.post('/delAccessGroups', function(req, res) {
+            
+    console.log(req.body)
+    
+    let name = req.body.profile.name
+    let idProfile = req.body.profile.id
+
+    log_('Removendo Perfil de acesso: ' + name)
+    
+    let sql = "DELETE FROM acessos_controle_perfil WHERE id = " + idProfile + ";";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
 });
 
 http.listen(8085);
