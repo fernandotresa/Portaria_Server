@@ -98,6 +98,56 @@ function createProfileExpireConfig(req, res){
     });                
 }
 
+function updateProfileExpire(req, res){
+
+    let id = req.body.idProfile
+    let name = req.body.name
+    let type = req.body.type
+    let desc = req.body.desc    
+
+    log_('Atualizando Perfil de acesso: ' + name)
+    
+    let sql = "UPDATE acessos_controle_perfil SET \
+                name = '" + name + "',\
+                id_type = (SELECT acessos_controle_tipo.id FROM acessos_controle_tipo WHERE acessos_controle_tipo.name = '" + type + "'),\
+                description = '" + desc + "' \
+            WHERE id = " + id + ";"
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err; 
+        updateProfileExpireConfig(req, res)        
+    });                            
+}
+
+function updateProfileExpireConfig(req, res){
+
+    let id = req.body.idProfile
+    let name = req.body.name
+    let start = req.body.start
+    let end = req.body.end
+
+    log_('Atualizando configurações do Perfil de acesso: ' + name)
+
+    let sqlRemove = "DELETE FROM acessos_controle_config WHERE id_profile = " + id + ";"
+    log_(sqlRemove)
+
+    con.query(sqlRemove, function (err, result) {        
+        if (err) throw err; 
+        
+        let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
+         VALUES (" + id + ", '" + start + "', '" + end + "');";
+
+        log_(sql)
+
+        con.query(sql, function (err1, result1) {        
+            if (err1) throw err1; 
+            res.json({"success": result1});
+        });
+    });        
+}
+
 function createProfileDatetime(req, res){
 
     let name = req.body.name
@@ -141,6 +191,62 @@ function createProfileDatetimeConfig(req, res){
     });            
      
     res.json({"success": 1});
+}
+
+function updateProfileDatetime(req, res){
+
+    let id = req.body.idProfile
+    let name = req.body.name
+    let type = req.body.type
+    let desc = req.body.desc    
+    
+    log_('Atualizando Perfil de acesso: ' + name)    
+    
+    let sql = "UPDATE acessos_controle_perfil SET \
+            name = '" + name + "',\
+            id_type = (SELECT acessos_controle_tipo.id FROM acessos_controle_tipo WHERE acessos_controle_tipo.name = '" + type + "'),\
+            description = '" + desc + "' \
+        WHERE id = " + id + ";"
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err; 
+        updateProfileDatetimeConfig(req, res)        
+    });                            
+}
+
+function updateProfileDatetimeConfig(req, res){    
+    let name = req.body.name    
+    let events = req.body.events   
+    let id = req.body.idProfile
+
+    log_('Atualizando configurações do Perfil de acesso: ' + name)
+
+    let sqlRemove = "DELETE FROM acessos_controle_config WHERE id_profile = " + id + ";"
+    log_(sqlRemove)
+
+    con.query(sqlRemove, function (err, result) {        
+        if (err) throw err; 
+        
+        events.forEach(element => {
+
+            let start = element.startTime
+            let end = element.endTime
+            let title = element.title
+                
+            let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title) \
+                VALUES (" + id + ", '" + start + "', '" + end + "', '" + title + "');";
+    
+            log_(sql)
+    
+            con.query(sql, function (err, result) {        
+                if (err) throw err;             
+            });
+        });            
+         
+        res.json({"success": 1});
+    });            
 }
 
 function createProfileDayweek(req, res){
@@ -187,6 +293,65 @@ function createProfileDayweekConfig(req, res){
     });            
      
     res.json({"success": 1});
+}
+
+function updateProfileDayweek(req, res){
+
+    let id = req.body.idProfile
+    let name = req.body.name
+    let type = req.body.type
+    let desc = req.body.desc    
+    
+    log_('Atualizando Perfil de acesso: ' + name)    
+    
+    let sql = "UPDATE acessos_controle_perfil SET \
+            name = '" + name + "',\
+            id_type = (SELECT acessos_controle_tipo.id FROM acessos_controle_tipo WHERE acessos_controle_tipo.name = '" + type + "'),\
+            description = '" + desc + "' \
+        WHERE id = " + id + ";"
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err; 
+        updateProfileDayweekConfig(req, res)        
+    });                            
+}
+
+function updateProfileDayweekConfig(req, res){
+    
+    let name = req.body.name    
+    let events = req.body.events   
+    let id = req.body.idProfile
+    
+    log_('Atualizando configuração do Perfil de acesso: ' + name)
+
+    let sqlRemove = "DELETE FROM acessos_controle_config WHERE id_profile = " + id + ";"
+    log_(sqlRemove)
+
+    con.query(sqlRemove, function (err, result) {        
+        if (err) throw err; 
+        
+        events.forEach(element => {
+
+            let start = element.startTime
+            let end = element.endTime
+            let title = 'Perfil Dia semana'
+            let id = element.id
+    
+            let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title, id_day) \
+                VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "', '" + title + "', " + id + ");";
+    
+            log_(sql)
+    
+            con.query(sql, function (err, result) {        
+                if (err) throw err;             
+            });
+        });            
+         
+        res.json({"success": 1});
+
+    });     
 }
 
 
@@ -458,12 +623,24 @@ app.post('/addAccessProfileExpire', function(req, res) {
     createProfileExpire(req, res)    
 });
 
+app.post('/updateAccessProfileExpire', function(req, res) {            
+    updateProfileExpire(req, res)    
+});
+
 app.post('/addAccessProfileDatetime', function(req, res) {            
     createProfileDatetime(req, res)        
 });
 
+app.post('/updateAccessProfileDatetime', function(req, res) {            
+    updateProfileDatetime(req, res)        
+});
+
 app.post('/addAccessProfileDayweek', function(req, res) {            
     createProfileDayweek(req, res)        
+});
+
+app.post('/updateAccessProfileDayweek', function(req, res) {            
+    updateProfileDayweek(req, res)        
 });
 
 app.post('/delAccessGroups', function(req, res) {
