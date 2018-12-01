@@ -89,7 +89,7 @@ function createProfileExpireConfig(req, res){
     log_('Configurando Perfil de acesso: ' + name)
     
     let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
-            VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id ASC LIMIT 1), '" + start + "', '" + end + "');";
+            VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "');";
     log_(sql)
 
     con.query(sql, function (err, result) {        
@@ -131,7 +131,7 @@ function createProfileDatetimeConfig(req, res){
         let title = element.title
 
         let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title) \
-            VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id ASC LIMIT 1), '" + start + "', '" + end + "', '" + title + "');";
+            VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "', '" + title + "');";
 
         log_(sql)
 
@@ -177,7 +177,7 @@ function createProfileDayweekConfig(req, res){
         let id = element.id
 
         let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title, id_day) \
-            VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id ASC LIMIT 1), '" + start + "', '" + end + "', '" + title + "', " + id + ");";
+            VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "', '" + title + "', " + id + ");";
 
         log_(sql)
 
@@ -467,15 +467,28 @@ app.post('/addAccessProfileDayweek', function(req, res) {
 });
 
 app.post('/delAccessGroups', function(req, res) {
-            
-    console.log(req.body)
-    
+                
     let name = req.body.profile.name
     let idProfile = req.body.profile.id
 
     log_('Removendo Perfil de acesso: ' + name)
     
     let sql = "DELETE FROM acessos_controle_perfil WHERE id = " + idProfile + ";";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getProfileInfo', function(req, res) {
+            
+    let idProfile = req.body.idProfile
+
+    log_('Verificando informaçẽs do perfil: ' + idProfile)
+    
+    let sql = "SELECT * FROM acessos_controle_config WHERE id_profile = " + idProfile + ";";        
     log_(sql)
 
     con.query(sql, function (err1, result) {        
