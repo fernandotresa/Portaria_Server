@@ -382,9 +382,7 @@ function updateProfileDayweekConfigBySector(req, res){
         });
     });
 
-    res.json({"success": 1});
-
-        
+    res.json({"success": 1});        
 }
 
 
@@ -574,6 +572,26 @@ app.post('/getAccessGroups', function(req, res) {
             FALSE as checked \
             FROM acessos_controle_perfil \
         INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getAccessGroupsByName', function(req, res) {
+            
+    let name = req.body.name
+    log_('Verificando Perfis de acesso por nome: ' + name)
+    
+    let sql = "SELECT acessos_controle_perfil.*,\
+            acessos_controle_tipo.name AS type,\
+            FALSE as checked \
+            FROM acessos_controle_perfil \
+        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
+        WHERE acessos_controle_perfil.name LIKE '%" + name + "%';";
+
+    log_(sql)
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -792,6 +810,28 @@ app.post('/getEmployeesBySector', function(req, res) {
 
 app.post('/saveAccessProfileSector', function(req, res) {            
     updateProfileDayweekConfigBySector(req, res)        
+});
+
+app.post('/getAccessProfileEmployeeBySector', function(req, res) {
+            
+    let idSector = req.body.idSector
+    let idProfile = req.body.idProfile
+
+    log_('Verificando informaçoẽs do perfil todos colaborador - Setor ' + idSector + ' Profile: ' + idProfile)
+    
+    let sql = "SELECT funcionarios.id \
+        FROM acessos_controle \
+        INNER JOIN funcionarios ON funcionarios.id = acessos_controle.id_employee \
+        INNER JOIN setores ON setores.id =  funcionarios.id_setor \
+        WHERE setores.name = '" + idSector + "' \
+        AND acessos_controle.id_profile = " + idProfile + ";";        
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
 });
 
 http.listen(8085);
