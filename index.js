@@ -323,7 +323,7 @@ function updateProfileDayweekConfig(req, res){
     let name = req.body.name    
     let events = req.body.events   
     let id = req.body.idProfile
-    
+        
     log_('Atualizando configuração do Perfil de acesso: ' + name)
 
     let sqlRemove = "DELETE FROM acessos_controle_config WHERE id_profile = " + id + ";"
@@ -352,6 +352,39 @@ function updateProfileDayweekConfig(req, res){
         res.json({"success": 1});
 
     });     
+}
+
+function updateProfileDayweekConfigBySector(req, res){
+    
+    let profiles = req.body.profiles   
+    let employees = req.body.employees
+            
+    log_('Atualizando configurações de perfil por setor')
+
+    employees.forEach(element => {
+
+        let sqlRemove = "DELETE FROM acessos_controle WHERE id_employee = " + element + ";"
+
+        con.query(sqlRemove, function (err, result) {        
+            if (err) throw err;    
+            
+            profiles.forEach(element1 => {
+
+                let sql = "INSERT INTO acessos_controle (id_profile, id_employee) \
+                    VALUES (" + element1 + ", " + element + ");";
+        
+                log_(sql)
+        
+                con.query(sql, function (err1, result1) {        
+                    if (err1) throw err1;             
+                });
+            });
+        });
+    });
+
+    res.json({"success": 1});
+
+        
 }
 
 
@@ -537,7 +570,8 @@ app.post('/getAccessGroups', function(req, res) {
     log_('Verificando Perfis de acesso')
     
     let sql = "SELECT acessos_controle_perfil.*,\
-            acessos_controle_tipo.name AS type \
+            acessos_controle_tipo.name AS type,\
+            FALSE as checked \
             FROM acessos_controle_perfil \
         INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type;";        
 
@@ -672,6 +706,92 @@ app.post('/getProfileInfo', function(req, res) {
         if (err1) throw err1;                  
         res.json({"success": result});        
     });                        
+});
+
+app.post('/saveAccessProfileEmployee', function(req, res) {
+            
+    let employeeId = req.body.employeeId
+    let profiles = req.body.profiles
+
+    log_('Salvando profile para colaborador: ' + employeeId)
+    
+    profiles.forEach(element => {
+
+        let sql = "INSERT INTO acessos_controle (id_profile, id_employee) \
+            VALUES (" + element + ", " + employeeId + ");";
+
+        log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err) throw err;             
+        });
+    });    
+    
+    res.json({"success": 1});        
+
+});
+
+app.post('/getAccessProfileEmployee', function(req, res) {
+            
+    let idEmployee = req.body.idEmployee
+
+    log_('Verificando informaçẽs do perfil colaborador: ' + idEmployee)
+    
+    let sql = "SELECT * FROM acessos_controle WHERE id_employee = " + idEmployee + ";";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getEmployeesBySector', function(req, res) {
+            
+    let idSector = req.body.idSector
+
+    log_('Verificando colaboradores do setor: ' + idSector)
+    
+    let sql = "SELECT \
+        funcionarios.id,\
+        UPPER(funcionarios.name) AS name,\
+        UPPER(funcionarios.name_comum) AS name_comum,\
+        UPPER(funcionarios.cpf) AS cpf,\
+        UPPER(funcionarios.rg) AS rg,\
+        UPPER(funcionarios.telefone) AS telefone,\
+        UPPER(funcionarios.endereco) AS endereco,\
+        UPPER(funcionarios.bairro) AS bairro,\
+        false AS checked,\
+        funcionarios.obs,\
+        funcionarios.foto,\
+        funcionarios.obs,\
+        funcionarios.fotosamba,\
+        UPPER(funcionarios.matricula) AS matricula,\
+        funcionarios.status,\
+        crachas.id_cracha AS CRACHA,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        UPPER(funcionarios_tipos.name) AS FUNCIONARIO_TIPO,\
+        UPPER(setores.name) AS SETOR,\
+        UPPER(empresas.name) AS EMPRESA,\
+        UPPER(cargos.name) AS CARGO \
+    FROM funcionarios \
+    INNER JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
+    INNER JOIN  setores ON setores.id =  funcionarios.id_setor \
+    LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
+    LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
+    LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
+    WHERE setores.id = " + idSector + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/saveAccessProfileSector', function(req, res) {            
+    updateProfileDayweekConfigBySector(req, res)        
 });
 
 http.listen(8085);
