@@ -834,5 +834,42 @@ app.post('/getAccessProfileEmployeeBySector', function(req, res) {
     });                        
 });
 
+app.post('/saveAccessProfileGuest', function(req, res) {
+            
+    let guestId = req.body.guestId
+    let profiles = req.body.profiles
+
+    log_('Salvando profile para visitante: ' + guestId)
+    
+    profiles.forEach(element => {
+
+        let sql = "INSERT INTO acessos_controle (id_profile, id_guest) \
+            VALUES (" + element + ", " + guestId + ");";
+
+        log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err) throw err;             
+        });
+    });    
+    
+    res.json({"success": 1});        
+});
+
+app.post('/getAccessProfileGuests', function(req, res) {
+            
+    let idGuest = req.body.idGuest
+
+    log_('Verificando informaçẽs do perfil colaborador: ' + idGuest)
+    
+    let sql = "SELECT * FROM acessos_controle WHERE id_guest = " + idGuest + ";";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
 http.listen(8085);
 
