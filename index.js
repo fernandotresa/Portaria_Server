@@ -26,6 +26,7 @@ var db_config = {
     database: "zoologico"
 };
 
+
 /*var db_config = {
     host: "10.0.2.180",
     user: "root",
@@ -83,19 +84,30 @@ function createProfileExpire(req, res){
 function createProfileExpireConfig(req, res){
     
     let name = req.body.name
-    let start = req.body.start
-    let end = req.body.end
+    let start0 = req.body.start0
+    let end0 = req.body.end0
+    let start1 = req.body.start1
+    let end1 = req.body.end1
 
     log_('Configurando Perfil de acesso: ' + name)
     
-    let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
-            VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "');";
-    log_(sql)
+    let sql0 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, id_type) \
+         VALUES (" + id + ", '" + start0 + "', '" + end0 + "', 1);";
 
-    con.query(sql, function (err, result) {        
-        if (err) throw err; 
-        res.json({"success": result});
-    });                
+        let sql1 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, id_type) \
+         VALUES (" + id + ", '" + start1 + "', '" + end1 + "', 2);";
+
+        log_(sql0)
+        log_(sql1)
+
+        con.query(sql0, function (err0, result0) {        
+            if (err0) throw err0; 
+            
+            con.query(sql1, function (err1, result1) {        
+                if (err1) throw err1; 
+                res.json({"success": result1});
+            });
+        });               
 }
 
 function updateProfileExpire(req, res){
@@ -125,8 +137,10 @@ function updateProfileExpireConfig(req, res){
 
     let id = req.body.idProfile
     let name = req.body.name
-    let start = req.body.start
-    let end = req.body.end
+    let start0 = req.body.start0
+    let end0 = req.body.end0
+    let start1 = req.body.start1
+    let end1 = req.body.end1
 
     log_('Atualizando configurações do Perfil de acesso: ' + name)
 
@@ -136,14 +150,22 @@ function updateProfileExpireConfig(req, res){
     con.query(sqlRemove, function (err, result) {        
         if (err) throw err; 
         
-        let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
-         VALUES (" + id + ", '" + start + "', '" + end + "');";
+        let sql0 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, id_type) \
+         VALUES (" + id + ", '" + start0 + "', '" + end0 + "', 1);";
 
-        log_(sql)
+        let sql1 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, id_type) \
+         VALUES (" + id + ", '" + start1 + "', '" + end1 + "', 2);";
 
-        con.query(sql, function (err1, result1) {        
-            if (err1) throw err1; 
-            res.json({"success": result1});
+        log_(sql0)
+        log_(sql1)
+
+        con.query(sql0, function (err0, result0) {        
+            if (err0) throw err0; 
+            
+            con.query(sql1, function (err1, result1) {        
+                if (err1) throw err1; 
+                res.json({"success": result1});
+            });
         });
     });        
 }
@@ -322,11 +344,11 @@ function updateProfileDayweekConfig(req, res){
     
     let name = req.body.name    
     let events = req.body.events   
-    let id = req.body.idProfile
+    let idProfile = req.body.idProfile
         
     log_('Atualizando configuração do Perfil de acesso: ' + name)
 
-    let sqlRemove = "DELETE FROM acessos_controle_config WHERE id_profile = " + id + ";"
+    let sqlRemove = "DELETE FROM acessos_controle_config WHERE id_profile = " + idProfile + ";"
     log_(sqlRemove)
 
     con.query(sqlRemove, function (err, result) {        
@@ -337,10 +359,10 @@ function updateProfileDayweekConfig(req, res){
             let start = element.startTime
             let end = element.endTime
             let title = 'Perfil Dia semana'
-            let id = element.id
+            let idDay = element.id
     
             let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title, id_day) \
-                VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "', '" + title + "', " + id + ");";
+                VALUES (" + idProfile + ", '" + start + "', '" + end + "', '" + title + "', " + idDay + ");";
     
             log_(sql)
     
