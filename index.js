@@ -430,26 +430,26 @@ app.post('/getEmployees', function(req, res) {
 
     let sql = "SELECT \
         funcionarios.id,\
-        UPPER(funcionarios.name) AS name,\
-        UPPER(funcionarios.name_comum) AS name_comum,\
-        UPPER(funcionarios.cpf) AS cpf,\
-        UPPER(funcionarios.rg) AS rg,\
-        UPPER(funcionarios.telefone) AS telefone,\
-        UPPER(funcionarios.endereco) AS endereco,\
-        UPPER(funcionarios.bairro) AS bairro,\
+        funcionarios.name AS name,\
+        funcionarios.name_comum AS name_comum,\
+        funcionarios.cpf AS cpf,\
+        funcionarios.rg AS rg,\
+        funcionarios.telefone AS telefone,\
+        funcionarios.endereco AS endereco,\
+        funcionarios.bairro AS bairro,\
         funcionarios.obs,\
         funcionarios.foto,\
         funcionarios.fotosamba,\
-        UPPER(funcionarios.matricula) AS matricula,\
+        funcionarios.matricula AS matricula,\
         funcionarios.status,\
         crachas.id AS CRACHA_ID,\
         crachas.id_tipo AS CRACHA_TIPO,\
         crachas.id_cracha AS CRACHA,\
         funcionarios_tipos.id AS id_tipo,\
-        UPPER(funcionarios_tipos.name) AS FUNCIONARIO_TIPO,\
-        UPPER(setores.name) AS SETOR,\
-        UPPER(empresas.name) AS EMPRESA,\
-        UPPER(cargos.name) AS CARGO \
+        funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
+        setores.name AS SETOR,\
+        empresas.name AS EMPRESA,\
+        cargos.name AS CARGO \
     FROM funcionarios \
     LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
     LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
@@ -476,25 +476,25 @@ app.post('/getEmployeesByName', function(req, res) {
 
     let sql = "SELECT \
         funcionarios.id,\
-        UPPER(funcionarios.name) AS name,\
-        UPPER(funcionarios.name_comum) AS name_comum,\
-        UPPER(funcionarios.cpf) AS cpf,\
-        UPPER(funcionarios.rg) AS rg,\
-        UPPER(funcionarios.telefone) AS telefone,\
-        UPPER(funcionarios.endereco) AS endereco,\
-        UPPER(funcionarios.bairro) AS bairro,\
+        funcionarios.name AS name,\
+        funcionarios.name_comum AS name_comum,\
+        funcionarios.cpf AS cpf,\
+        funcionarios.rg AS rg,\
+        funcionarios.telefone AS telefone,\
+        funcionarios.endereco AS endereco,\
+        funcionarios.bairro AS bairro,\
         funcionarios.obs,\
         funcionarios.foto,\
         funcionarios.obs,\
         funcionarios.fotosamba,\
-        UPPER(funcionarios.matricula) AS matricula,\
+        funcionarios.matricula AS matricula,\
         funcionarios.status,\
         crachas.id_cracha AS CRACHA,\
         crachas.id_tipo AS CRACHA_TIPO,\
-        UPPER(funcionarios_tipos.name) AS FUNCIONARIO_TIPO,\
-        UPPER(setores.name) AS SETOR,\
-        UPPER(empresas.name) AS EMPRESA,\
-        UPPER(cargos.name) AS CARGO \
+        funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
+        setores.name AS SETOR,\
+        empresas.name AS EMPRESA,\
+        cargos.name AS CARGO \
     FROM funcionarios \
     LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
     LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
@@ -517,23 +517,23 @@ app.post('/getGuests', function(req, res) {
     
     let sql = "SELECT \
         visitantes.id,\
-        UPPER(visitantes.name) AS name,\
-        UPPER(visitantes.cpf) AS cpf,\
-        UPPER(visitantes.rg) AS rg,\
-        UPPER(visitantes.telefone) AS telefone,\
-        UPPER(visitantes.endereco) AS endereco,\
-        UPPER(visitantes.bairro) AS bairro,\
-        UPPER(visitantes.obs) AS obs,\
+        visitantes.name AS name,\
+        visitantes.cpf AS cpf,\
+        visitantes.rg AS rg,\
+        visitantes.telefone AS telefone,\
+        visitantes.endereco AS endereco,\
+        visitantes.bairro AS bairro,\
+        visitantes.obs AS obs,\
         visitantes.fotosamba,\
         visitantes.status,\
         crachas.id AS CRACHA_ID,\
         crachas.id_tipo AS CRACHA_TIPO,\
         crachas.id_cracha AS CRACHA,\
-        UPPER(funcionarios.name) AS AUTORIZANTE,\
+        funcionarios.name AS AUTORIZANTE,\
         funcionarios.id AS AUTORIZANTE_ID,\
         visitantes_tipos.id AS id_tipo,\
         visitantes_tipos.name AS TIPO,\
-        UPPER(empresas.name) AS EMPRESA \
+        empresas.name AS EMPRESA \
     FROM visitantes \
     LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
     LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
@@ -556,23 +556,23 @@ app.post('/getGuestsByName', function(req, res) {
     
     let sql = "SELECT \
         visitantes.id,\
-        UPPER(visitantes.name) AS name,\
-        UPPER(visitantes.cpf) AS cpf,\
-        UPPER(visitantes.rg) AS rg,\
-        UPPER(visitantes.telefone) AS telefone,\
-        UPPER(visitantes.endereco) AS endereco,\
-        UPPER(visitantes.bairro) AS bairro,\
-        UPPER(visitantes.obs) AS obs,\
+        visitantes.name AS name,\
+        visitantes.cpf AS cpf,\
+        visitantes.rg AS rg,\
+        visitantes.telefone AS telefone,\
+        visitantes.endereco AS endereco,\
+        visitantes.bairro AS bairro,\
+        visitantes.obs AS obs,\
         visitantes.fotosamba,\
         visitantes.status,\
         crachas.id AS CRACHA_ID,\
         crachas.id_tipo AS CRACHA_TIPO,\
         crachas.id_cracha AS CRACHA,\
-        UPPER(funcionarios.name) AS AUTORIZANTE,\
+        funcionarios.name AS AUTORIZANTE,\
         funcionarios.id AS AUTORIZANTE_ID,\
         visitantes_tipos.id AS id_tipo,\
         visitantes_tipos.name AS TIPO,\
-        UPPER(empresas.name) AS EMPRESA \
+        empresas.name AS EMPRESA \
     FROM visitantes \
     LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
     LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
