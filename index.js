@@ -448,11 +448,13 @@ app.post('/getEmployees', function(req, res) {
         funcionarios_tipos.id AS id_tipo,\
         funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
         setores.name AS SETOR,\
+        funcao.name AS FUNCAO,\
         empresas.name AS EMPRESA,\
         cargos.name AS CARGO \
     FROM funcionarios \
     LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
     LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
+    LEFT JOIN  funcao ON funcao.id =  funcionarios.id_funcao \
     LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
     LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
     LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
@@ -494,10 +496,12 @@ app.post('/getEmployeesByName', function(req, res) {
         funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
         setores.name AS SETOR,\
         empresas.name AS EMPRESA,\
+        funcao.name AS FUNCAO,\
         cargos.name AS CARGO \
     FROM funcionarios \
     LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
     LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
+    LEFT JOIN  funcao ON funcao.id =  funcionarios.id_funcao \
     LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
     LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
     LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
