@@ -1019,6 +1019,26 @@ app.post('/getAcls', function(req, res) {
     });                        
 });
 
+app.post('/getACLByName', function(req, res) {                
+
+    let name = req.body.name
+    log_('Verificando informaçoẽs das ACL: ' + name)
+    
+    let sql = "SELECT acls.*, \
+                acls_permissoes.name AS permissao,\
+                acls_permissoes.acl_value \
+            FROM acls \
+            INNER JOIN acls_permissoes ON acls_permissoes.id = acls.id_permission \
+            WHERE acls.name LIKE '%" + name + "%';";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
 app.post('/addAcl', function(req, res) {
     addAcl(req, res)                   
 });
