@@ -444,7 +444,7 @@ function addAclContinue(req, res){
         });
     });   
     
-    res.json({"success": result});
+    res.json({"success": "1"});
 }
 
 function saveAcl(req, res){
@@ -492,7 +492,7 @@ function saveAclContinue(req, res){
             });
         });  
 
-        res.json({"success": result});  
+        res.json({"success": "1"});  
     });            
 }
 
