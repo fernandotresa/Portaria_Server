@@ -654,7 +654,7 @@ app.post('/getSectors', function(req, res) {
             
     log_('Verificando Setores')
     
-    let sql = "SELECT * FROM setores;";        
+    let sql = "SELECT setores.*, false AS checked FROM setores;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -896,6 +896,55 @@ app.post('/getAccessProfileGuests', function(req, res) {
         if (err1) throw err1;                  
         res.json({"success": result});        
     });                        
+});
+
+app.post('/getAcls', function(req, res) {                
+
+    log_('Verificando informaçẽs das ACLS')
+    
+    let sql = "SELECT * FROM acls;";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/addAcl', function(req, res) {
+            
+    let name = req.body.name
+    let permission = req.body.permission
+    let sectors = req.body.sectors
+
+    log_('Adicionando nova ACL: ' + name)
+
+    let sql = "INSERT INTO acls (name, id_permission) \
+            VALUES ('" + name + "',\
+            (SELECT acls_permissoes.id FROM acls_permissoes WHERE acls_permissoes.name = '" + permission + "'));";
+
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        
+        sectors.forEach(element => {
+
+            let sqlSector = "INSERT INTO acls_setores (id_acl, id_sector) \
+                VALUES (\
+                (SELECT acls.id FROM acls ORDER BY acls.id DESC LIMIT 1), " + element + ");";
+    
+            log_(sqlSector)
+    
+            con.query(sql, function (err, result) {        
+                if (err) throw err;             
+            });
+        });    
+        
+        res.json({"success": result});
+    });                
+
 });
 
 http.listen(8085);
