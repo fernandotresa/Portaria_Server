@@ -408,6 +408,109 @@ function updateProfileDayweekConfigBySector(req, res){
     res.json({"success": 1});        
 }
 
+function addAcl(req, res){
+
+    let name = req.body.name
+    let permission = req.body.permission
+
+    log_('Adicionando nova ACL: ' + name)
+
+    let sql = "INSERT INTO acls (name, id_permission) \
+            VALUES ('" + name + "',\
+            (SELECT acls_permissoes.id FROM acls_permissoes WHERE acls_permissoes.name = '" + permission + "'));";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+
+        addAclContinue(req, res)                       
+    }); 
+}
+
+function addAclContinue(req, res){
+    let sectors = req.body.sectors
+    
+    sectors.forEach(element => {
+
+        let sqlSector = "INSERT INTO acls_setores (id_acl, id_sector) \
+            VALUES (\
+            (SELECT acls.id FROM acls ORDER BY acls.id DESC LIMIT 1), " + element.id + ");";
+
+        log_(sqlSector)
+
+        con.query(sqlSector, function (err, result) {        
+            if (err) throw err;             
+        });
+    });   
+    
+    res.json({"success": result});
+}
+
+function saveAcl(req, res){
+
+    let id = req.body.idAcl
+    let name = req.body.name
+    let permission = req.body.permission
+
+    log_("Atualizando ACL: " + name + " - Id: " + id)
+
+    let sql = "UPDATE acls \
+        SET name =  '" + name + "',\
+        id_permission = (SELECT acls_permissoes.id FROM acls_permissoes WHERE acls_permissoes.name = '" + permission + "') \
+        WHERE acls.id = " + id + ";"
+
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;
+        saveAclContinue(req, res)
+    });  
+}
+
+function saveAclContinue(req, res){
+
+    let id = req.body.idAcl
+    let sectors = req.body.sectors
+
+    let sqlRemove = "DELETE FROM acls_setores WHERE id_acl = " + id + ";";        
+    log_(sqlRemove)
+
+    con.query(sqlRemove, function (err1, result) {        
+        if (err1) throw err1;   
+
+        sectors.forEach(element => {
+
+            let sqlSector = "INSERT INTO acls_setores (id_acl, id_sector) \
+                VALUES (" + id + ", " + element.id + ");";
+    
+            log_(sqlSector)
+    
+            con.query(sqlSector, function (err1, result1) {        
+                if (err1) throw err;             
+            });
+        });  
+
+        res.json({"success": result});  
+    });            
+}
+
+function delAcl(req, res){
+    let name = req.body.acl.nome
+    let id = req.body.acl.id
+
+    log_('Removendo ACL: ' + name)
+    
+    let sql = "DELETE FROM acls WHERE id = " + id + ";";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });
+}
+
 
 app.post('/getAuth', function(req, res) {
         
@@ -902,7 +1005,12 @@ app.post('/getAcls', function(req, res) {
 
     log_('Verificando informaçẽs das ACLS')
     
-    let sql = "SELECT * FROM acls;";        
+    let sql = "SELECT acls.*, \
+                acls_permissoes.name AS permissao,\
+                acls_permissoes.acl_value \
+            FROM acls \
+            INNER JOIN acls_permissoes ON acls_permissoes.id = acls.id_permission;";
+
     log_(sql)
 
     con.query(sql, function (err1, result) {        
@@ -912,49 +1020,26 @@ app.post('/getAcls', function(req, res) {
 });
 
 app.post('/addAcl', function(req, res) {
-            
-    let name = req.body.name
-    let permission = req.body.permission
-    let sectors = req.body.sectors
+    addAcl(req, res)                   
+});
 
-    log_('Adicionando nova ACL: ' + name)
-
-    let sql = "INSERT INTO acls (name, id_permission) \
-            VALUES ('" + name + "',\
-            (SELECT acls_permissoes.id FROM acls_permissoes WHERE acls_permissoes.acl_value = " + permission + "));";
-
-
-    log_(sql)
-
-    con.query(sql, function (err, result) {        
-        if (err) throw err;  
-        
-        sectors.forEach(element => {
-
-            let sqlSector = "INSERT INTO acls_setores (id_acl, id_sector) \
-                VALUES (\
-                (SELECT acls.id FROM acls ORDER BY acls.id DESC LIMIT 1), " + element.id + ");";
-    
-            log_(sqlSector)
-    
-            con.query(sqlSector, function (err, result) {        
-                if (err) throw err;             
-            });
-        });    
-        
-        res.json({"success": result});
-    });                
+app.post('/saveAcl', function(req, res) {
+    saveAcl(req, res)
 });
 
 app.post('/delAcl', function(req, res) {
-                
-    console.log(req.body)
-    let name = req.body.acl.nome
-    let id = req.body.acl.id
+    delAcl(req, res)                                            
+});
 
-    log_('Removendo ACL: ' + name)
+app.post('/getAclsSectorsById', function(req, res) {                
+
+    let idAcl = req.body.idAcl
+    log_('Verificando informaçẽs das ACLS por id: ' + idAcl)
     
-    let sql = "DELETE FROM acls WHERE id = " + id + ";";        
+    let sql = "SELECT acls_setores.*, false AS checked \
+                FROM acls_setores \
+            WHERE id_acl = " + idAcl + ";";
+
     log_(sql)
 
     con.query(sql, function (err1, result) {        
