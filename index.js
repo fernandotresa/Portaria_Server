@@ -921,7 +921,7 @@ app.post('/addAcl', function(req, res) {
 
     let sql = "INSERT INTO acls (name, id_permission) \
             VALUES ('" + name + "',\
-            (SELECT acls_permissoes.id FROM acls_permissoes WHERE acls_permissoes.name = '" + permission + "'));";
+            (SELECT acls_permissoes.id FROM acls_permissoes WHERE acls_permissoes.acl_value = " + permission + "));";
 
 
     log_(sql)
@@ -933,18 +933,34 @@ app.post('/addAcl', function(req, res) {
 
             let sqlSector = "INSERT INTO acls_setores (id_acl, id_sector) \
                 VALUES (\
-                (SELECT acls.id FROM acls ORDER BY acls.id DESC LIMIT 1), " + element + ");";
+                (SELECT acls.id FROM acls ORDER BY acls.id DESC LIMIT 1), " + element.id + ");";
     
             log_(sqlSector)
     
-            con.query(sql, function (err, result) {        
+            con.query(sqlSector, function (err, result) {        
                 if (err) throw err;             
             });
         });    
         
         res.json({"success": result});
     });                
+});
 
+app.post('/delAcl', function(req, res) {
+                
+    console.log(req.body)
+    let name = req.body.acl.nome
+    let id = req.body.acl.id
+
+    log_('Removendo ACL: ' + name)
+    
+    let sql = "DELETE FROM acls WHERE id = " + id + ";";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
 });
 
 http.listen(8085);
