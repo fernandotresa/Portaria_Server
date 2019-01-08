@@ -511,6 +511,18 @@ function delAcl(req, res){
     });
 }
 
+function delAclEmployee(idEmployee){
+    
+    log_('Removendo ACL: ' + idEmployee)
+    
+    let sql = "DELETE FROM funcionarios_acl WHERE id_funcionario = " + idEmployee + ";";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+    });
+}
+
 
 app.post('/getAuth', function(req, res) {
         
@@ -1059,6 +1071,49 @@ app.post('/getAclsSectorsById', function(req, res) {
     let sql = "SELECT acls_setores.*, false AS checked \
                 FROM acls_setores \
             WHERE id_acl = " + idAcl + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+
+app.post('/saveAclsEmployee', function(req, res) {
+            
+    let employeeId = req.body.employeeId
+    let acls = req.body.acls
+
+    log_('Salvando ACL para colaborador: ' + employeeId)
+    delAclEmployee(employeeId)
+    
+    acls.forEach(element => {
+
+        let sql = "INSERT INTO funcionarios_acl (id_acl, id_funcionario) \
+            VALUES (" + element.id + ", " + employeeId + ");";
+
+        log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err) throw err;             
+        });
+    });    
+    
+    res.json({"success": 1});        
+
+});
+
+app.post('/getAclsEmployee', function(req, res) {                
+
+    let id = req.body.id
+    let idEmployee = req.body.idEmployee
+
+    log_('Verificando informação ACL do funcionário: ' + idEmployee)
+    
+    let sql = "SELECT * FROM funcionarios_acl \
+            WHERE id_funcionario = " + idEmployee + ";";
 
     log_(sql)
 
