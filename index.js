@@ -88,15 +88,14 @@ function createProfileExpireConfig(req, res){
     let end0 = req.body.end0
     let start1 = req.body.start1
     let end1 = req.body.end1
-    let id = req.body.idProfile
 
     log_('Configurando Perfil de acesso: ' + name)
     
-    let sql0 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, id_type) \
-         VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start0 + "', '" + end0 + "', 1);";
+    let sql0 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
+         VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start0 + "', '" + end0 + "');";
 
-    let sql1 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, id_type) \
-         VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start1 + "', '" + end1 + "', 2);";
+    let sql1 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
+         VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start1 + "', '" + end1 + "');";
 
         log_(sql0)
         log_(sql1)
@@ -151,11 +150,11 @@ function updateProfileExpireConfig(req, res){
     con.query(sqlRemove, function (err, result) {        
         if (err) throw err; 
         
-        let sql0 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, id_type) \
-         VALUES (" + id + ", '" + start0 + "', '" + end0 + "', 1);";
+        let sql0 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
+         VALUES (" + id + ", '" + start0 + "', '" + end0 + "');";
 
-        let sql1 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, id_type) \
-         VALUES (" + id + ", '" + start1 + "', '" + end1 + "', 2);";
+        let sql1 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
+         VALUES (" + id + ", '" + start1 + "', '" + end1 + "');";
 
         log_(sql0)
         log_(sql1)
