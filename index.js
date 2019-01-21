@@ -1024,6 +1024,23 @@ app.post('/getAclsUser', function(req, res) {
     });                        
 });
 
+app.post('/getAclsSectorsById', function(req, res) {                
+
+    let idAcl = req.body.idAcl
+    log_('Verificando informaçẽs das ACLS por id: ' + idAcl)
+    
+    let sql = "SELECT acls_setores.*, false AS checked \
+                FROM acls_setores \
+            WHERE id_acl = " + idAcl + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
 app.post('/saveAclsUser', function(req, res) {
             
     let idUser = req.body.idUser
@@ -1048,11 +1065,12 @@ app.post('/saveAclsUser', function(req, res) {
 
 });
 
-app.post('/getAclsEmployeeSector', function(req, res) {                
+app.post('/getAclsUserSector', function(req, res) {                
 
-    let idEmployee = req.body.idEmployee
+    let idUser = req.body.idUser
 
-    log_('Verificando informação ACL por SETORES do funcionário: ' + idEmployee)
+    log_('Verificando informação ACL por SETORES do usuário: ' + idUser)
+    
     
     let sql = "SELECT acls.id AS ACL_ID,\
             acls.name AS ACL_NOME,\
@@ -1066,7 +1084,7 @@ app.post('/getAclsEmployeeSector', function(req, res) {
             INNER JOIN acls_permissoes ON acls_permissoes.id = acls.id_permission \
             INNER JOIN acls_setores ON acls_setores.id_acl = acls.id \
             INNER JOIN setores ON setores.id = acls_setores.id_sector \
-            WHERE id_user = " + id_user + ";";
+            WHERE id_user = " + idUser + ";";
 
     log_(sql)
 
