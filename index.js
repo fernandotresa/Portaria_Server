@@ -354,37 +354,6 @@ function updateProfileDayweekConfig(req, res){
     });     
 }
 
-function updateProfileDayweekConfigBySector(req, res){
-    
-    let profiles = req.body.profiles   
-    let employees = req.body.employees
-            
-    log_('Atualizando configurações de perfil por setor')
-
-    employees.forEach(element => {
-
-        let sqlRemove = "DELETE FROM acessos_controle WHERE id_employee = " + element + ";"
-
-        con.query(sqlRemove, function (err, result) {        
-            if (err) throw err;    
-            
-            profiles.forEach(element1 => {
-
-                let sql = "INSERT INTO acessos_controle (id_profile, id_employee) \
-                    VALUES (" + element1 + ", " + element + ");";
-        
-                log_(sql)
-        
-                con.query(sql, function (err1, result1) {        
-                    if (err1) throw err1;             
-                });
-            });
-        });
-    });
-
-    res.json({"success": 1});        
-}
-
 function addAcl(req, res){
 
     let name = req.body.name
@@ -488,11 +457,11 @@ function delAcl(req, res){
     });
 }
 
-function delAclEmployee(idEmployee){
+function delAclUser(idUser){
     
-    log_('Removendo ACL: ' + idEmployee)
+    log_('Removendo ACL: ' + idUser)
     
-    let sql = "DELETE FROM funcionarios_acl WHERE id_funcionario = " + idEmployee + ";";        
+    let sql = "DELETE FROM users_acls WHERE id_user = " + idUser + ";";        
     log_(sql)
 
     con.query(sql, function (err1, result) {        
@@ -575,6 +544,7 @@ app.post('/getEmployees', function(req, res) {
         funcionarios_tipos.id AS id_tipo,\
         funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
         setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
         funcao.name AS FUNCAO,\
         empresas.name AS EMPRESA,\
         cargos.name AS CARGO \
@@ -622,6 +592,7 @@ app.post('/getEmployeesByName', function(req, res) {
         crachas.id_tipo AS CRACHA_TIPO,\
         funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
         setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
         empresas.name AS EMPRESA,\
         funcao.name AS FUNCAO,\
         cargos.name AS CARGO \
@@ -947,27 +918,7 @@ app.post('/saveAccessProfileSector', function(req, res) {
     updateProfileDayweekConfigBySector(req, res)        
 });
 
-app.post('/getAccessProfileEmployeeBySector', function(req, res) {
-            
-    let idSector = req.body.idSector
-    let idProfile = req.body.idProfile
 
-    log_('Verificando informaçoẽs do perfil todos colaborador - Setor ' + idSector + ' Profile: ' + idProfile)
-    
-    let sql = "SELECT funcionarios.id \
-        FROM acessos_controle \
-        INNER JOIN funcionarios ON funcionarios.id = acessos_controle.id_employee \
-        INNER JOIN setores ON setores.id =  funcionarios.id_setor \
-        WHERE setores.name = '" + idSector + "' \
-        AND acessos_controle.id_profile = " + idProfile + ";";        
-
-    log_(sql)
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
-});
 
 app.post('/saveAccessProfileGuest', function(req, res) {
             
@@ -1056,14 +1007,14 @@ app.post('/delAcl', function(req, res) {
     delAcl(req, res)                                            
 });
 
-app.post('/getAclsSectorsById', function(req, res) {                
+app.post('/getAclsUser', function(req, res) {                
 
-    let idAcl = req.body.idAcl
-    log_('Verificando informaçẽs das ACLS por id: ' + idAcl)
+    let idUser = req.body.idUser
+
+    log_('Verificando informação ACL do usuário: ' + idUser)
     
-    let sql = "SELECT acls_setores.*, false AS checked \
-                FROM acls_setores \
-            WHERE id_acl = " + idAcl + ";";
+    let sql = "SELECT * FROM users_acls \
+            WHERE id_user = " + idUser + ";";
 
     log_(sql)
 
@@ -1073,19 +1024,18 @@ app.post('/getAclsSectorsById', function(req, res) {
     });                        
 });
 
-
-app.post('/saveAclsEmployee', function(req, res) {
+app.post('/saveAclsUser', function(req, res) {
             
-    let employeeId = req.body.employeeId
+    let idUser = req.body.idUser
     let acls = req.body.acls
 
-    log_('Salvando ACL para colaborador: ' + employeeId)
-    delAclEmployee(employeeId)
+    log_('Salvando ACL para usuário: ' + idUser)
+    delAclUser(idUser)
     
     acls.forEach(element => {
 
-        let sql = "INSERT INTO funcionarios_acl (id_acl, id_funcionario) \
-            VALUES (" + element.id + ", " + employeeId + ");";
+        let sql = "INSERT INTO users_acls (id_acl, id_user) \
+            VALUES (" + element.id + ", " + idUser + ");";
 
         log_(sql)
 
@@ -1098,15 +1048,55 @@ app.post('/saveAclsEmployee', function(req, res) {
 
 });
 
-app.post('/getAclsEmployee', function(req, res) {                
+app.post('/getAclsEmployeeSector', function(req, res) {                
 
-    let id = req.body.id
     let idEmployee = req.body.idEmployee
 
-    log_('Verificando informação ACL do funcionário: ' + idEmployee)
+    log_('Verificando informação ACL por SETORES do funcionário: ' + idEmployee)
     
-    let sql = "SELECT * FROM funcionarios_acl \
-            WHERE id_funcionario = " + idEmployee + ";";
+    let sql = "SELECT acls.id AS ACL_ID,\
+            acls.name AS ACL_NOME,\
+            acls_permissoes.id AS ACL_PERMISSAO_ID,\
+            acls_permissoes.name AS ACL_PERMISSAO,\
+            acls_permissoes.acl_value AS ACL_VALOR,\
+            setores.name AS SETOR,\
+            setores.id AS SETOR_ID \
+            FROM users_acls \
+            INNER JOIN acls ON acls.id = users_acls.id_acl \
+            INNER JOIN acls_permissoes ON acls_permissoes.id = acls.id_permission \
+            INNER JOIN acls_setores ON acls_setores.id_acl = acls.id \
+            INNER JOIN setores ON setores.id = acls_setores.id_sector \
+            WHERE id_user = " + id_user + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getUsers', function(req, res) {                    
+
+    log_('Verificando informação dos usuários')
+    
+    let sql = "SELECT * FROM users;";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getUserByName', function(req, res) {
+            
+    let name = req.body.name
+    log_('Verificando usuário por nome: ' + name)
+    
+    let sql = "SELECT * FROM users \
+        WHERE users.username LIKE '%" + name + "%';";
 
     log_(sql)
 
