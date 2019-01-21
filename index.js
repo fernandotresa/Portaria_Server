@@ -84,30 +84,18 @@ function createProfileExpire(req, res){
 function createProfileExpireConfig(req, res){
     
     let name = req.body.name
-    let start0 = req.body.start0
-    let end0 = req.body.end0
-    let start1 = req.body.start1
-    let end1 = req.body.end1
+    let start = req.body.start0    
+    let end = req.body.end1
 
     log_('Configurando Perfil de acesso: ' + name)
     
-    let sql0 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
-         VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start0 + "', '" + end0 + "');";
+    let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
+         VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "');";        
 
-    let sql1 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
-         VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start1 + "', '" + end1 + "');";
-
-        log_(sql0)
-        log_(sql1)
-
-        con.query(sql0, function (err0, result0) {        
-            if (err0) throw err0; 
-            
-            con.query(sql1, function (err1, result1) {        
-                if (err1) throw err1; 
-                res.json({"success": result1});
-            });
-        });               
+         con.query(sql1, function (err1, result1) {        
+            if (err1) throw err1; 
+            res.json({"success": result1});
+        });              
 }
 
 function updateProfileExpire(req, res){
@@ -137,10 +125,8 @@ function updateProfileExpireConfig(req, res){
 
     let id = req.body.idProfile
     let name = req.body.name
-    let start0 = req.body.start0
-    let end0 = req.body.end0
-    let start1 = req.body.start1
-    let end1 = req.body.end1
+    let start = req.body.start0
+    let end = req.body.end1    
 
     log_('Atualizando configurações do Perfil de acesso: ' + name)
 
@@ -150,22 +136,14 @@ function updateProfileExpireConfig(req, res){
     con.query(sqlRemove, function (err, result) {        
         if (err) throw err; 
         
-        let sql0 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
-         VALUES (" + id + ", '" + start0 + "', '" + end0 + "');";
+        let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
+         VALUES (" + id + ", '" + start + "', '" + end + "');";
+     
+        log_(sql)
 
-        let sql1 = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
-         VALUES (" + id + ", '" + start1 + "', '" + end1 + "');";
-
-        log_(sql0)
-        log_(sql1)
-
-        con.query(sql0, function (err0, result0) {        
-            if (err0) throw err0; 
-            
-            con.query(sql1, function (err1, result1) {        
-                if (err1) throw err1; 
-                res.json({"success": result1});
-            });
+        con.query(sql, function (err1, result1) {        
+            if (err1) throw err1; 
+            res.json({"success": result1});
         });
     });        
 }
@@ -522,6 +500,41 @@ function delAclEmployee(idEmployee){
     });
 }
 
+function saveAccessProfileEmployee(req, res){
+
+    let employeeId = req.body.employeeId
+    let profiles = req.body.profiles
+
+    removeAccessProfileEmployee(req)
+    
+    profiles.forEach(element => {
+
+        let sql = "INSERT INTO acessos_controle (id_profile, id_employee) \
+            VALUES (" + element + ", " + employeeId + ");";
+
+            log_(sql)
+
+            con.query(sql, function (err, result) {        
+                if (err) throw err;             
+            });                    
+    });    
+    
+    res.json({"success": 1}); 
+}
+
+function removeAccessProfileEmployee(req){
+
+    let employeeId = req.body.employeeId
+    
+    let sql = "DELETE FROM acessos_controle WHERE id_employee = " + employeeId + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+    });
+}
+
 
 app.post('/getAuth', function(req, res) {
         
@@ -868,26 +881,7 @@ app.post('/getProfileInfo', function(req, res) {
 });
 
 app.post('/saveAccessProfileEmployee', function(req, res) {
-            
-    let employeeId = req.body.employeeId
-    let profiles = req.body.profiles
-
-    log_('Salvando profile para colaborador: ' + employeeId)
-    
-    profiles.forEach(element => {
-
-        let sql = "INSERT INTO acessos_controle (id_profile, id_employee) \
-            VALUES (" + element + ", " + employeeId + ");";
-
-        log_(sql)
-
-        con.query(sql, function (err, result) {        
-            if (err) throw err;             
-        });
-    });    
-    
-    res.json({"success": 1});        
-
+    saveAccessProfileEmployee(req, res)
 });
 
 app.post('/getAccessProfileEmployee', function(req, res) {
