@@ -23,15 +23,16 @@ var db_config = {
     host: "10.8.0.50",
     user: "root",
     password: "Mudaragora00",
-    database: "zoologico"
+    database: "zoologico",
+    timezone: 'utc'  
 };
-
 
 /*var db_config = {
     host: "10.0.2.180",
     user: "root",
     password: "Mudaragora00",
-    database: "zoosp"
+    database: "zoosp",
+    timezone: 'utc'  
 };*/
 
 let con;
@@ -883,6 +884,8 @@ app.post('/getProfileInfo', function(req, res) {
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
+
+        console.log(result)
         res.json({"success": result});        
     });                        
 });
