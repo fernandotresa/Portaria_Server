@@ -481,14 +481,37 @@ function saveAccessProfileEmployee(req, res){
         let sql = "INSERT INTO acessos_controle (id_profile, id_employee) \
             VALUES (" + element + ", " + employeeId + ");";
 
-            log_(sql)
+        log_(sql)
 
-            con.query(sql, function (err, result) {        
-                if (err) throw err;             
-            });                    
+        con.query(sql, function (err, result) {        
+            if (err) throw err;             
+        });                    
     });    
     
     res.json({"success": 1}); 
+}
+
+function saveAccessProfileGuest(req, res){
+
+    let guestId = req.body.guestId
+    let profiles = req.body.profiles
+
+    log_('Salvando profile para visitante: ' + guestId)
+    removeAccessProfileGuest(req)
+    
+    profiles.forEach(element => {
+
+        let sql = "INSERT INTO acessos_controle (id_profile, id_guest) \
+            VALUES (" + element + ", " + guestId + ");";
+
+        log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err) throw err;             
+        });
+    });    
+    
+    res.json({"success": 1});        
 }
 
 function removeAccessProfileEmployee(req){
@@ -504,6 +527,18 @@ function removeAccessProfileEmployee(req){
     });
 }
 
+function removeAccessProfileGuest(req){
+
+    let guestId = req.body.guestId
+    
+    let sql = "DELETE FROM acessos_controle WHERE id_guest = " + guestId + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+    });
+}
 
 app.post('/getAuth', function(req, res) {
         
@@ -922,25 +957,7 @@ app.post('/saveAccessProfileSector', function(req, res) {
 
 
 app.post('/saveAccessProfileGuest', function(req, res) {
-            
-    let guestId = req.body.guestId
-    let profiles = req.body.profiles
-
-    log_('Salvando profile para visitante: ' + guestId)
-    
-    profiles.forEach(element => {
-
-        let sql = "INSERT INTO acessos_controle (id_profile, id_guest) \
-            VALUES (" + element + ", " + guestId + ");";
-
-        log_(sql)
-
-        con.query(sql, function (err, result) {        
-            if (err) throw err;             
-        });
-    });    
-    
-    res.json({"success": 1});        
+    saveAccessProfileGuest(req, res)    
 });
 
 app.post('/getAccessProfileGuests', function(req, res) {
