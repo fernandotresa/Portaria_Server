@@ -534,8 +534,7 @@ app.post('/getEmployees', function(req, res) {
         funcionarios.endereco AS endereco,\
         funcionarios.bairro AS bairro,\
         funcionarios.obs,\
-        funcionarios.foto,\
-        funcionarios.fotosamba,\
+        funcionarios.foto_web,\
         funcionarios.matricula AS matricula,\
         funcionarios.status,\
         crachas.id AS CRACHA_ID,\
@@ -583,9 +582,8 @@ app.post('/getEmployeesByName', function(req, res) {
         funcionarios.endereco AS endereco,\
         funcionarios.bairro AS bairro,\
         funcionarios.obs,\
-        funcionarios.foto,\
+        funcionarios.foto_web,\
         funcionarios.obs,\
-        funcionarios.fotosamba,\
         funcionarios.matricula AS matricula,\
         funcionarios.status,\
         crachas.id_cracha AS CRACHA,\
@@ -641,8 +639,11 @@ app.post('/getGuests', function(req, res) {
     LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
     LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
     LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
+    WHERE visitantes.name IS NOT NULL \
     ORDER BY visitantes.name ASC \
     LIMIT 0,20;";
+
+    log_(sql)    
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -680,7 +681,7 @@ app.post('/getGuestsByName', function(req, res) {
     LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
     LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
     LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
-    WHERE visitantes.name LIKE '%" + name + "%';";
+    WHERE visitantes.name LIKE '%" + name + "%' AND visitantes.name IS NOT NULL;";
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -1070,7 +1071,7 @@ app.post('/getAclsUserSector', function(req, res) {
     let idUser = req.body.idUser
 
     log_('Verificando informação ACL por SETORES do usuário: ' + idUser)
-    
+
     
     let sql = "SELECT acls.id AS ACL_ID,\
             acls.name AS ACL_NOME,\
