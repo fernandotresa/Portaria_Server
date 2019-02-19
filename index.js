@@ -6,7 +6,7 @@ let bodyParser = require('body-parser');
 let logger = require('morgan');
 let methodOverride = require('method-override')
 let cors = require('cors');
-var moment = require('moment');
+var moment = require('moment-timezone');
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -84,9 +84,9 @@ function createProfileExpire(req, res){
 
 function createProfileExpireConfig(req, res){
     
-    let name = req.body.name
-    let start = req.body.start0    
-    let end = req.body.end1
+    let name = req.body.name    
+    let  start = moment(req.body.start0).tz('America/Sao_Paulo').format()
+    let  end = moment(req.body.end1).tz('America/Sao_Paulo').format()
 
     log_('Configurando Perfil de acesso: ' + name)
     
@@ -126,8 +126,8 @@ function updateProfileExpireConfig(req, res){
 
     let id = req.body.idProfile
     let name = req.body.name
-    let start = req.body.start0
-    let end = req.body.end1    
+    let  start = moment(req.body.start0).tz('America/Sao_Paulo').format()
+    let  end = moment(req.body.end1).tz('America/Sao_Paulo').format()
 
     log_('Atualizando configurações do Perfil de acesso: ' + name)
 
@@ -177,9 +177,11 @@ function createProfileDatetimeConfig(req, res){
 
     events.forEach(element => {
 
-        let start = element.startTime
-        let end = element.endTime
+        let  start = moment(element.startTime).tz('America/Sao_Paulo').format()
+        let  end = moment(element.endTime).tz('America/Sao_Paulo').format()
         let title = element.title
+
+        console.log(start, end)
 
         let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title) \
             VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "', '" + title + "');";
@@ -231,11 +233,11 @@ function updateProfileDatetimeConfig(req, res){
         if (err) throw err; 
         
         events.forEach(element => {
+                        
+            let title = element.title            
+            let  start = moment(element.startTime).tz('America/Sao_Paulo').format()
+            let  end = moment(element.endTime).tz('America/Sao_Paulo').format()
 
-            let start = element.startTime
-            let end = element.endTime
-            let title = element.title
-                
             let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title) \
                 VALUES (" + id + ", '" + start + "', '" + end + "', '" + title + "');";
     
