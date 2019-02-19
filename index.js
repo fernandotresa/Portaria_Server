@@ -93,7 +93,7 @@ function createProfileExpireConfig(req, res){
     let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
          VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "');";        
 
-         con.query(sql1, function (err1, result1) {        
+         con.query(sql, function (err1, result1) {        
             if (err1) throw err1; 
             res.json({"success": result1});
         });              
@@ -543,6 +543,8 @@ function removeAccessProfileGuest(req){
 
 app.post('/getAuth', function(req, res) {
         
+    console.log(req.body)
+
     let username = req.body.username
     let password = req.body.password
 
@@ -551,7 +553,9 @@ app.post('/getAuth', function(req, res) {
     let sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "' ORDER BY id LIMIT 1;";        
 
     con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
+        if (err1) throw err1;  
+        
+        console.log(result)
         res.json({"success": result});        
     });                        
 });
@@ -884,8 +888,7 @@ app.post('/getProfileInfo', function(req, res) {
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
-
-        console.log(result)
+        
         res.json({"success": result});        
     });                        
 });
