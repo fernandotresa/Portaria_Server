@@ -179,9 +179,7 @@ function createProfileDatetimeConfig(req, res){
 
         let  start = moment(element.startTime).tz('America/Sao_Paulo').format()
         let  end = moment(element.endTime).tz('America/Sao_Paulo').format()
-        let title = element.title
-
-        console.log(start, end)
+        let title = element.title        
 
         let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title) \
             VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "', '" + title + "');";
@@ -543,10 +541,33 @@ function removeAccessProfileGuest(req){
     });
 }
 
+function blockUser(req, res){
+
+    let id = req.body.user.id    
+    let sql = "UPDATE users SET id_status = 0 WHERE  id = " + id + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+        res.json({"success": 1}); 
+    });            
+}
+
+function activeUser(req, res){
+    let id = req.body.user.id    
+    let sql = "UPDATE users SET id_status = 1 WHERE  id = " + id + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+        res.json({"success": 1}); 
+    });            
+}
+
 app.post('/getAuth', function(req, res) {
         
-    console.log(req.body)
-
     let username = req.body.username
     let password = req.body.password
 
@@ -557,7 +578,6 @@ app.post('/getAuth', function(req, res) {
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;  
         
-        console.log(result)
         res.json({"success": result});        
     });                        
 });
@@ -1148,6 +1168,14 @@ app.post('/getUserByName', function(req, res) {
         if (err1) throw err1;                  
         res.json({"success": result});        
     });                        
+});
+
+app.post('/blockUser', function(req, res) {
+    blockUser(req, res)
+});
+
+app.post('/activeUser', function(req, res) {
+    activeUser(req, res)
 });
 
 http.listen(8085);
