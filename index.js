@@ -787,6 +787,26 @@ app.post('/getAccessGroupsByName', function(req, res) {
     });                        
 });
 
+app.post('/getAccessGroupsTypeById', function(req, res) {
+            
+    let idAccessGroupType = req.body.idAccessGroupType
+    log_('Verificando Tipos Perfis de acesso por id: ' + idAccessGroupType)
+    
+    let sql = "SELECT acessos_controle_perfil.*,\
+            acessos_controle_tipo.name AS type,\
+            FALSE as checked \
+            FROM acessos_controle_perfil \
+        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
+        WHERE acessos_controle_tipo.id = " + idAccessGroupType + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
 app.post('/getWorkFunctions', function(req, res) {
             
     log_('Verificando funções')
