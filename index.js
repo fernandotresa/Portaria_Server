@@ -954,6 +954,45 @@ app.post('/getAccessProfileEmployee', function(req, res) {
     });                        
 });
 
+app.post('/getAccessProfilesNameEmployee', function(req, res) {
+            
+    let idEmployee = req.body.idEmployee
+
+    log_('Verificando informaçẽs do perfil colaborador: ' + idEmployee)
+    
+    let sql = "SELECT acessos_controle_perfil.name \
+        FROM acessos_controle \
+        INNER JOIN acessos_controle_perfil ON acessos_controle_perfil.id = acessos_controle.id_profile \
+        WHERE id_employee = " + idEmployee + ";";        
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getAccessProfilesNameGuest', function(req, res) {
+            
+    let idGuest = req.body.idGuest
+
+    log_('Verificando informaçẽs do perfil visitante: ' + idGuest)
+    
+    let sql = "SELECT acessos_controle_perfil.name \
+        FROM acessos_controle \
+        INNER JOIN acessos_controle_perfil ON acessos_controle_perfil.id = acessos_controle.id_profile \
+        WHERE id_guest = " + idGuest + ";";        
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+
 app.post('/getEmployeesBySector', function(req, res) {
             
     let idSector = req.body.idSector
