@@ -808,6 +808,23 @@ app.post('/getAccessGroupsTypeById', function(req, res) {
     });                        
 });
 
+app.post('/getAccessGroupsTypes', function(req, res) {
+            
+    let idAccessGroupType = req.body.idAccessGroupType
+    log_('Verificando Tipos Perfis de acesso por id: ' + idAccessGroupType)
+    
+    let sql = "SELECT * \
+            FROM acessos_controle_tipo \
+        WHERE acessos_controle_tipo.id = " + idAccessGroupType + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
 app.post('/getWorkFunctions', function(req, res) {
             
     log_('Verificando funções')
