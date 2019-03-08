@@ -757,6 +757,7 @@ app.post('/getAccessGroups', function(req, res) {
     
     let sql = "SELECT acessos_controle_perfil.*,\
             acessos_controle_tipo.name AS type,\
+            acessos_controle_tipo.id AS type_id,\
             FALSE as checked \
             FROM acessos_controle_perfil \
         INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type;";        
