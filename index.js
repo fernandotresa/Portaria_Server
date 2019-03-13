@@ -126,8 +126,8 @@ function updateProfileExpireConfig(req, res){
 
     let id = req.body.idProfile
     let name = req.body.name
-    let  start = moment(req.body.start0).tz('America/Sao_Paulo').format()
-    let  end = moment(req.body.end1).tz('America/Sao_Paulo').format()
+    let  start = moment(req.body.start).tz('America/Sao_Paulo').format()
+    let  end = moment(req.body.end).tz('America/Sao_Paulo').format()
 
     log_('Atualizando configurações do Perfil de acesso: ' + name)
 
