@@ -20,10 +20,10 @@ function log_(str){
 }
 
 var db_config = {
-    host: "10.8.0.50",
-    user: "root",
+    host: "venda-online.cacasorqzf2r.sa-east-1.rds.amazonaws.com",
+    user: "portaria",
     password: "Mudaragora00",
-    database: "zoologico",
+    database: "portaria",
     timezone: 'utc'  
 };
 
