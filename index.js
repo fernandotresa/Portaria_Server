@@ -275,6 +275,7 @@ function createProfileDayweekConfig(req, res){
     let events = req.body.events   
 
     log_('Configurando Perfil de acesso: ' + name)
+    console.log(events)
 
     events.forEach(element => {
         
@@ -292,8 +293,8 @@ function createProfileDayweekConfig(req, res){
         con.query(sql, function (err, result) {        
             if (err) throw err;             
         });
-    });            
-     
+    });                     
+
     res.json({"success": 1});
 }
 
