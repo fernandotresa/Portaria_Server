@@ -283,7 +283,7 @@ function createProfileDayweekConfig(req, res){
         let id = element.id
 
         let  start = moment(element.startTime).tz('America/Sao_Paulo').format("YYYY-MM-DDThh:mm:ss")
-            let  end = moment(element.endTime).tz('America/Sao_Paulo').format("YYYY-MM-DDThh:mm:ss")
+        let  end = moment(element.endTime).tz('America/Sao_Paulo').format("YYYY-MM-DDThh:mm:ss")
 
         let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title, id_day) \
             VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "', '" + title + "', " + id + ");";
@@ -337,8 +337,9 @@ function updateProfileDayweekConfig(req, res){
         
         events.forEach(element => {
 
-            let start = element.startTime
-            let end = element.endTime
+            let  start = moment(element.startTime).tz('America/Sao_Paulo').format("YYYY-MM-DDThh:mm:ss")
+            let  end = moment(element.endTime).tz('America/Sao_Paulo').format("YYYY-MM-DDThh:mm:ss")
+            
             let title = 'Perfil Dia semana'
             let idDay = element.id
     
