@@ -177,8 +177,10 @@ function createProfileDatetimeConfig(req, res){
 
     events.forEach(element => {
 
-        let  start = moment(element.startTime).utc().format("YYYY-MM-DDTHH:kk:ss")
-        let  end = moment(element.endTime).utc().format("YYYY-MM-DDTHH:kk:ss")
+        console.log(element)
+
+        let  start = moment(element.startTime).tz('America/Sao_Paulo').format("YYYY-MM-DDTHH:kk:ss")
+        let  end = moment(element.endTime).tz('America/Sao_Paulo').format("YYYY-MM-DDTHH:kk:ss")
         let title = element.title        
 
         let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title) \
