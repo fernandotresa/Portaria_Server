@@ -19,21 +19,21 @@ function log_(str){
     console.log(msg)
 }
 
-var db_config = {
+/*var db_config = {
     host: "venda-online.cacasorqzf2r.sa-east-1.rds.amazonaws.com",
     user: "portaria",
     password: "Mudaragora00",
     database: "portaria",
     timezone: 'utc'  
-};
+};*/
 
-/*var db_config = {
-    host: "10.0.2.180",
+var db_config = {
+    host: "10.8.0.50",
     user: "root",
     password: "Mudaragora00",
-    database: "zoosp",
+    database: "zoologico2",
     timezone: 'utc'  
-};*/
+};
 
 let con;
 
@@ -177,8 +177,8 @@ function createProfileDatetimeConfig(req, res){
 
     events.forEach(element => {
 
-        let  start = moment(element.startTime).tz('America/Sao_Paulo').format("YYYY-MM-DDThh:mm:ss")
-        let  end = moment(element.endTime).tz('America/Sao_Paulo').format("YYYY-MM-DDThh:mm:ss")
+        let  start = moment(element.startTime).utc().format("YYYY-MM-DDTHH:kk:ss")
+        let  end = moment(element.endTime).utc().format("YYYY-MM-DDTHH:kk:ss")
         let title = element.title        
 
         let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title) \
