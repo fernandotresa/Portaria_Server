@@ -177,7 +177,11 @@ function createProfileDatetimeConfig(req, res){
 
     events.forEach(element => {
 
-        console.log(element)
+        console.log(element.startTime)
+        console.log(element.endTime)
+
+        console.log(moment(element.startTime).tz('America/Sao_Paulo').format("YYYY-MM-DDTHH:kk:ss"))
+        console.log(moment(element.startTime).tz('America/Sao_Paulo').format())
 
         let  start = moment(element.startTime).tz('America/Sao_Paulo').format("YYYY-MM-DDTHH:kk:ss")
         let  end = moment(element.endTime).tz('America/Sao_Paulo').format("YYYY-MM-DDTHH:kk:ss")
