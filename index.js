@@ -237,10 +237,12 @@ function updateProfileDatetimeConfig(req, res){
         if (err) throw err; 
         
         events.forEach(element => {
-                        
+                
+            console.log(element)
+            
             let title = element.title            
-            let  start = moment(element.startTime).tz('America/Sao_Paulo').format("YYYY-MM-DDThh:mm:ss")
-            let  end = moment(element.endTime).tz('America/Sao_Paulo').format("YYYY-MM-DDThh:mm:ss")
+            let  start = moment(element.startTime).tz('America/Sao_Paulo').format("YYYY-MM-DDTHH:mm:ss")
+            let  end = moment(element.endTime).tz('America/Sao_Paulo').format("YYYY-MM-DDTHH:mm:ss")
 
             let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end, title) \
                 VALUES (" + id + ", '" + start + "', '" + end + "', '" + title + "');";
