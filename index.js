@@ -28,10 +28,10 @@ function log_(str){
 };*/
 
 var db_config = {
-    host: "10.8.0.50",
+    host: "10.8.0.234",
     user: "root",
     password: "Mudaragora00",
-    database: "zoologico2",
+    database: "zoologico",
     timezone: 'utc'  
 };
 
