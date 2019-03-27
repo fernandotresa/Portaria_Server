@@ -1036,6 +1036,28 @@ app.post('/getAccessProfilesNameEmployee', function(req, res) {
     });                        
 });
 
+app.post('/getAclsNameEmployee', function(req, res) {
+            
+    let idEmployee = req.body.idEmployee
+
+    log_('Verificando informaçẽs de ACL colaborador: ' + idEmployee)
+
+    let sql = "SELECT acls.*, \
+        acls_permissoes.name AS permissao,\
+        acls_permissoes.acl_value \
+    FROM acls \
+    INNER JOIN acls_permissoes ON acls_permissoes.id = acls.id_permission \
+    INNER JOIN users_acls ON users_acls.id_acl = acls.id \
+    WHERE users_acls.id_user = " + idEmployee + ";";        
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
 app.post('/getAccessProfilesNameGuest', function(req, res) {
             
     let idGuest = req.body.idGuest
