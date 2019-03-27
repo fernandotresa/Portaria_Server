@@ -571,6 +571,18 @@ function activeUser(req, res){
     });            
 }
 
+function checkProfileSectors(req, res){
+    let id = req.body.user.id    
+    let sql = "UPDATE users SET id_status = 1 WHERE  id = " + id + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+        res.json({"success": 1}); 
+    });            
+}
+
 app.post('/getAuth', function(req, res) {
         
     let username = req.body.username
@@ -824,6 +836,31 @@ app.post('/getAccessGroupsTypes', function(req, res) {
     let sql = "SELECT * \
             FROM acessos_controle_tipo \
         WHERE acessos_controle_tipo.id = " + idAccessGroupType + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getAccessGroupsBySector', function(req, res) {
+            
+    let name = req.body.name
+    let idAccessGroupType = req.body.idAccessGroupType
+
+    log_('Verificando Perfis de acesso por nome: ' + name)
+    
+    let sql = "SELECT acessos_controle_perfil.*,\
+            acessos_controle_tipo.name AS type,\
+            FALSE as checked \
+            FROM acessos_controle_perfil \
+        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
+        INNER JOIN funcionarios ON funcionarios.name = acessos_controle_perfil.name \
+        INNER JOIN setores ON setores.id = funcionarios.id_setor \
+        WHERE setores.name LIKE '%" + name + "%' \
+        AND acessos_controle_tipo.id = " + idAccessGroupType + ";";
 
     log_(sql)
 
@@ -1264,4 +1301,3 @@ app.post('/activeUser', function(req, res) {
 });
 
 http.listen(8085);
-
