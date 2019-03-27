@@ -28,7 +28,7 @@ function log_(str){
 };*/
 
 var db_config = {
-    host: "10.8.0.234",
+    host: "10.8.0.18",
     user: "root",
     password: "Mudaragora00",
     database: "zoologico",
@@ -776,6 +776,8 @@ app.post('/getAccessGroups', function(req, res) {
 app.post('/getAccessGroupsByName', function(req, res) {
             
     let name = req.body.name
+    let idAccessGroupType = req.body.idAccessGroupType
+
     log_('Verificando Perfis de acesso por nome: ' + name)
     
     let sql = "SELECT acessos_controle_perfil.*,\
@@ -783,7 +785,8 @@ app.post('/getAccessGroupsByName', function(req, res) {
             FALSE as checked \
             FROM acessos_controle_perfil \
         INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
-        WHERE acessos_controle_perfil.name LIKE '%" + name + "%';";
+        WHERE acessos_controle_perfil.name LIKE '%" + name + "%' \
+        AND acessos_controle_tipo.id = " + idAccessGroupType + ";";
 
     log_(sql)
 
