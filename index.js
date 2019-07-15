@@ -19,19 +19,11 @@ function log_(str){
     console.log(msg)
 }
 
-/*var db_config = {
-    host: "venda-online.cacasorqzf2r.sa-east-1.rds.amazonaws.com",
-    user: "portaria",
-    password: "Mudaragora00",
-    database: "portaria",
-    timezone: 'utc'  
-};*/
-
 var db_config = {
-    host: "10.8.0.18",
-    user: "root",
-    password: "Mudaragora00",
-    database: "zoologico",
+    host: "rds001.cacasorqzf2r.sa-east-1.rds.amazonaws.com",
+    user: "portaria",
+    password: "c4d3Oc0ntr4t0",
+    database: "portaria",
     timezone: 'utc'  
 };
 
