@@ -28,6 +28,12 @@ var db_config = {
 };
 
 let con;
+let functionss = []
+let tipos = []
+let setores = []
+let cargos = []
+let empresas = []
+let crachas = []
 
 function handleDisconnect() {
 
@@ -573,6 +579,42 @@ function checkProfileSectors(req, res){
         if (err) throw err;             
         res.json({"success": 1}); 
     });            
+}
+
+function addEmployee(req, res){
+
+    let name = req.body.name
+    let commumName = req.body.commumName
+    let rg = req.body.rg
+    let cpf = req.body.cpf
+    let district = req.body.district
+    let tel = req.body.tel
+    let ramal = req.body.ramal
+    let registration = req.body.registration
+    let badge = req.body.badge
+    let employeeFunction = req.body.employeeFunction
+    let employeeType = req.body.employeeType
+    let employeeSector = req.body.employeeSector
+    let employeeCompany = req.body.employeeCompany
+    let employeeOffice = req.body.employeeOffice
+        
+    let sql = "INSERT INTO funcionarios (name_comum, rg, cpf, endereco, bairro, telefone, foto, fotosamba, ramal,\
+                matricula, id_funcao, status, id_tipo, id_setor, id_empresa, id_cargo, id_cracha, obs, foto_web) \
+            VALUES ('" + name + "', '" + commumName + "', '" + rg + "', '" + cpf + "', '" + district + "', '" + tel + "', '" + ramal + "', '" + 
+            registration + " ', " +
+            "(SELECT crachas.id FROM crachas WHERE id_cracha = '" + badge + "' LIMIT 1)" + "," +
+            "(SELECT funcao.id FROM funcao WHERE name = '" + employeeFunction + "' LIMIT 1)" + "," +
+            "(SELECT funcionarios_tipos.id FROM funcionarios_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + "," +
+            "(SELECT setores.id FROM setores WHERE name = '" + employeeSector + "' LIMIT 1)" + "," +
+            "(SELECT empresas.id FROM empresas WHERE name = '" + employeeCompany + "' LIMIT 1)" + "," +
+            "(SELECT cargos.id FROM cargos WHERE name = '" + employeeOffice + "' LIMIT 1)" + ");";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    }); 
 }
 
 app.post('/getAuth', function(req, res) {
@@ -1312,6 +1354,10 @@ app.post('/blockUser', function(req, res) {
 
 app.post('/activeUser', function(req, res) {
     activeUser(req, res)
+});
+
+app.post('/addEmployee', function(req, res) {
+    addEmployee(req, res)
 });
 
 http.listen(8085);
