@@ -28,12 +28,6 @@ var db_config = {
 };
 
 let con;
-let functionss = []
-let tipos = []
-let setores = []
-let cargos = []
-let empresas = []
-let crachas = []
 
 function handleDisconnect() {
 
@@ -569,21 +563,22 @@ function activeUser(req, res){
     });            
 }
 
-function checkProfileSectors(req, res){
-    let id = req.body.user.id    
-    let sql = "UPDATE users SET id_status = 1 WHERE  id = " + id + ";";
+function verificaCracha(req, res){
+    let cracha = req.body.cracha
+    let sql = "SELECT * FROM crachas WHERE id_cracha = '" + cracha + "';";
 
     log_(sql)
 
     con.query(sql, function (err, result) {        
         if (err) throw err;             
-        res.json({"success": 1}); 
+        res.json({"success": result}); 
     });            
 }
 
 function addEmployee(req, res){
 
     let name = req.body.name
+    let endereco = req.body.endereco
     let commumName = req.body.commumName
     let rg = req.body.rg
     let cpf = req.body.cpf
@@ -597,17 +592,196 @@ function addEmployee(req, res){
     let employeeSector = req.body.employeeSector
     let employeeCompany = req.body.employeeCompany
     let employeeOffice = req.body.employeeOffice
-        
-    let sql = "INSERT INTO funcionarios (name_comum, rg, cpf, endereco, bairro, telefone, foto, fotosamba, ramal,\
-                matricula, id_funcao, status, id_tipo, id_setor, id_empresa, id_cargo, id_cracha, obs, foto_web) \
-            VALUES ('" + name + "', '" + commumName + "', '" + rg + "', '" + cpf + "', '" + district + "', '" + tel + "', '" + ramal + "', '" + 
-            registration + " ', " +
-            "(SELECT crachas.id FROM crachas WHERE id_cracha = '" + badge + "' LIMIT 1)" + "," +
+    let foto = "VAZIO"
+    let fotosamba = "VAZIO"
+    let fotoweb = "VAZIO"
+    let obs = "VAZIO"        
+
+    let sql = "INSERT INTO funcionarios (name, name_comum, rg, cpf, endereco, bairro, telefone, foto, fotosamba, ramal,\
+                matricula, id_funcao, id_tipo, id_setor, id_empresa, id_cargo, id_cracha, obs, foto_web, status) \
+            VALUES ('" + 
+            name + "', '" + 
+            commumName + "', '" + 
+            rg + "', '" + 
+            String(cpf) + "', '" + 
+            endereco + "', '" + 
+            district + "', '" + 
+            String(tel) + "', '" + 
+            foto + "', '" + 
+            fotosamba + "', '" + 
+            String(ramal) + "', '" + 
+            registration + "', " +            
             "(SELECT funcao.id FROM funcao WHERE name = '" + employeeFunction + "' LIMIT 1)" + "," +
             "(SELECT funcionarios_tipos.id FROM funcionarios_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + "," +
             "(SELECT setores.id FROM setores WHERE name = '" + employeeSector + "' LIMIT 1)" + "," +
             "(SELECT empresas.id FROM empresas WHERE name = '" + employeeCompany + "' LIMIT 1)" + "," +
-            "(SELECT cargos.id FROM cargos WHERE name = '" + employeeOffice + "' LIMIT 1)" + ");";
+            "(SELECT cargos.id FROM cargos WHERE name = '" + employeeOffice + "' LIMIT 1)" + ", '," + 
+            "(SELECT crachas.id FROM crachas WHERE id_cracha = '" + String(badge) + "' LIMIT 1)" + "', '" +
+            obs + "', '" +
+            fotoweb + "', 1);";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    }); 
+}
+
+function editEmployee(req, res){
+
+    let id = req.body.id
+    let name = req.body.name
+    let endereco = req.body.endereco
+    let commumName = req.body.commumName
+    let rg = req.body.rg
+    let cpf = req.body.cpf
+    let district = req.body.district
+    let tel = req.body.tel
+    let ramal = req.body.ramal
+    let registration = req.body.registration
+    let badge = req.body.badge
+    let employeeFunction = req.body.employeeFunction
+    let employeeType = req.body.employeeType
+    let employeeSector = req.body.employeeSector
+    let employeeCompany = req.body.employeeCompany
+    let employeeOffice = req.body.employeeOffice
+    let foto = "VAZIO"
+    let fotosamba = "VAZIO"
+    let fotoweb = "VAZIO"
+    let obs = "VAZIO"
+        
+
+    let sql = "UPDATE funcionarios SET \
+                name = '" + name + "',\
+                name_comum = '" + commumName + "',\
+                rg = '" + rg + "',\
+                cpf = '" + String(cpf) + "',\
+                bairro = '" + district + "',\
+                endereco = '" + endereco + "',\
+                telefone = '" + String(tel) + "',\
+                foto = '" + foto + "',\
+                fotosamba = '" + fotosamba + "',\
+                ramal = '" + String(ramal) + "',\
+                matricula = '" + String(registration) + "',\
+                id_funcao = (SELECT funcao.id FROM funcao WHERE name = '" + employeeFunction + "' LIMIT 1)" + ",\
+                id_tipo = (SELECT funcionarios_tipos.id FROM funcionarios_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + ",\
+                id_setor = (SELECT setores.id FROM setores WHERE name = '" + employeeSector + "' LIMIT 1)" + ",\
+                id_empresa = (SELECT empresas.id FROM empresas WHERE name = '" + employeeCompany + "' LIMIT 1)"  + ",\
+                id_cargo = (SELECT cargos.id FROM cargos WHERE name = '" + employeeOffice + "' LIMIT 1)" + ",\
+                id_cracha = (SELECT crachas.id FROM crachas WHERE id_cracha = '" + String(badge) + "' LIMIT 1)" + ",\
+                obs = '" + obs + "',\
+                foto_web = '" + fotoweb + "',\
+                status = 1 \
+                WHERE id = " + id + ";";            
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    }); 
+}
+
+function addGuest(req, res){
+
+    let name = req.body.name
+    let endereco = req.body.endereco
+    let authorizedBy = req.body.authorizedBy
+    let rg = req.body.rg
+    let cpf = req.body.cpf
+    let district = req.body.district
+    let tel = req.body.tel
+    let ramal = req.body.ramal
+    let registration = req.body.registration
+    let badge = req.body.badge
+    let employeeFunction = req.body.employeeFunction
+    let employeeType = req.body.employeeType
+    let employeeSector = req.body.employeeSector
+    let employeeCompany = req.body.employeeCompany
+    let employeeOffice = req.body.employeeOffice
+    let foto = "VAZIO"
+    let fotosamba = "VAZIO"
+    let fotoweb = "VAZIO"
+    let obs = "VAZIO"        
+
+    let sql = "INSERT INTO visitantes (name, id_autorizado_por, rg, cpf, endereco, bairro, telefone, foto, fotosamba, ramal,\
+                matricula, id_funcao, id_tipo, id_setor, id_empresa, id_cargo, id_cracha, obs, foto_web, status) \
+            VALUES ('" + 
+            name + "', '" + 
+            authorizedBy + "', '" + 
+            rg + "', '" + 
+            String(cpf) + "', '" + 
+            endereco + "', '" + 
+            district + "', '" + 
+            String(tel) + "', '" + 
+            foto + "', '" + 
+            fotosamba + "', '" + 
+            String(ramal) + "', '" + 
+            registration + "', " +            
+            "(SELECT funcao.id FROM funcao WHERE name = '" + employeeFunction + "' LIMIT 1)" + "," +
+            "(SELECT funcionarios_tipos.id FROM funcionarios_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + "," +
+            "(SELECT setores.id FROM setores WHERE name = '" + employeeSector + "' LIMIT 1)" + "," +
+            "(SELECT empresas.id FROM empresas WHERE name = '" + employeeCompany + "' LIMIT 1)" + "," +
+            "(SELECT cargos.id FROM cargos WHERE name = '" + employeeOffice + "' LIMIT 1)" + ", '," + 
+            "(SELECT crachas.id FROM crachas WHERE id_cracha = '" + String(badge) + "' LIMIT 1)" + "', '" +
+            obs + "', '" +
+            fotoweb + "', 1);";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    }); 
+}
+
+function editGuest(req, res){
+
+    let id = req.body.id
+    let name = req.body.name
+    let endereco = req.body.endereco
+    let authorizedBy = req.body.authorizedBy
+    let rg = req.body.rg
+    let cpf = req.body.cpf
+    let district = req.body.district
+    let tel = req.body.tel
+    let ramal = req.body.ramal
+    let registration = req.body.registration
+    let badge = req.body.badge
+    let employeeFunction = req.body.employeeFunction
+    let employeeType = req.body.employeeType
+    let employeeSector = req.body.employeeSector
+    let employeeCompany = req.body.employeeCompany
+    let employeeOffice = req.body.employeeOffice
+    let foto = "VAZIO"
+    let fotosamba = "VAZIO"
+    let fotoweb = "VAZIO"
+    let obs = "VAZIO"
+        
+
+    let sql = "UPDATE visitantes SET \
+                name = '" + name + "',\
+                id_autorizado_por = " + authorizedBy + ",\
+                rg = '" + rg + "',\
+                cpf = '" + String(cpf) + "',\
+                bairro = '" + district + "',\
+                endereco = '" + endereco + "',\
+                telefone = '" + String(tel) + "',\
+                foto = '" + foto + "',\
+                fotosamba = '" + fotosamba + "',\
+                ramal = '" + String(ramal) + "',\
+                matricula = '" + String(registration) + "',\
+                id_funcao = (SELECT funcao.id FROM funcao WHERE name = '" + employeeFunction + "' LIMIT 1)" + ",\
+                id_tipo = (SELECT funcionarios_tipos.id FROM funcionarios_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + ",\
+                id_setor = (SELECT setores.id FROM setores WHERE name = '" + employeeSector + "' LIMIT 1)" + ",\
+                id_empresa = (SELECT empresas.id FROM empresas WHERE name = '" + employeeCompany + "' LIMIT 1)"  + ",\
+                id_cargo = (SELECT cargos.id FROM cargos WHERE name = '" + employeeOffice + "' LIMIT 1)" + ",\
+                id_cracha = (SELECT crachas.id FROM crachas WHERE id_cracha = '" + String(badge) + "' LIMIT 1)" + ",\
+                obs = '" + obs + "',\
+                foto_web = '" + fotoweb + "',\
+                status = 1 \
+                WHERE id = " + id + ";";            
 
     log_(sql)
 
@@ -642,6 +816,7 @@ app.post('/getEmployees', function(req, res) {
         funcionarios.name AS name,\
         funcionarios.name_comum AS name_comum,\
         funcionarios.cpf AS cpf,\
+        funcionarios.ramal AS ramal,\
         funcionarios.rg AS rg,\
         funcionarios.telefone AS telefone,\
         funcionarios.endereco AS endereco,\
@@ -921,6 +1096,18 @@ app.post('/getEmployeeTypes', function(req, res) {
     log_('Verificando Tipos de funcionários')
     
     let sql = "SELECT * FROM funcionarios_tipos;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getGuestTypes', function(req, res) {
+            
+    log_('Verificando Tipos de visitantes')
+    
+    let sql = "SELECT * FROM veiculos_tipos;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -1359,5 +1546,22 @@ app.post('/activeUser', function(req, res) {
 app.post('/addEmployee', function(req, res) {
     addEmployee(req, res)
 });
+
+app.post('/editEmployee', function(req, res) {
+    editEmployee(req, res)
+});
+
+app.post('/verificaCracha', function(req, res) {
+    verificaCracha(req, res)
+});
+
+app.post('/addGuest', function(req, res) {
+    addGuest(req, res)
+});
+
+app.post('/editGuest', function(req, res) {
+    editGuest(req, res)
+});
+
 
 http.listen(8085);
