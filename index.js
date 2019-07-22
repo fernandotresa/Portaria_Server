@@ -1107,7 +1107,7 @@ app.post('/getGuestTypes', function(req, res) {
             
     log_('Verificando Tipos de visitantes')
     
-    let sql = "SELECT * FROM veiculos_tipos;";        
+    let sql = "SELECT * FROM visitantes_tipos;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
