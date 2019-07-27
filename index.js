@@ -705,7 +705,7 @@ function addGuest(req, res){
     let fotoweb = "VAZIO"
     let obs = "VAZIO"        
 
-    let sql = "INSERT INTO visitantes (name, id_autorizado_por, rg, cpf, endereco, bairro, telefone, foto, fotosamba, ramal,\
+    let sql = "INSERT INTO visitantes (name, id_autorizado_por, rg, cpf, endereco, bairro, telefone, foto, fotosamba \
                 matricula, id_funcao, id_tipo, id_setor, id_empresa, id_cargo, id_cracha, obs, foto_web, status) \
             VALUES ('" + 
             name + "', '" + 
@@ -716,8 +716,7 @@ function addGuest(req, res){
             district + "', '" + 
             String(tel) + "', '" + 
             foto + "', '" + 
-            fotosamba + "', '" + 
-            String(ramal) + "', '" + 
+            fotosamba + "', '" +
             registration + "', " +            
             "(SELECT funcao.id FROM funcao WHERE name = '" + employeeFunction + "' LIMIT 1)" + "," +
             "(SELECT funcionarios_tipos.id FROM funcionarios_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + "," +
@@ -745,8 +744,7 @@ function editGuest(req, res){
     let rg = req.body.rg
     let cpf = req.body.cpf
     let district = req.body.district
-    let tel = req.body.tel
-    let ramal = req.body.ramal
+    let tel = req.body.tel    
     let registration = req.body.registration
     let badge = req.body.badge
     let employeeFunction = req.body.employeeFunction
@@ -770,7 +768,6 @@ function editGuest(req, res){
                 telefone = '" + String(tel) + "',\
                 foto = '" + foto + "',\
                 fotosamba = '" + fotosamba + "',\
-                ramal = '" + String(ramal) + "',\
                 matricula = '" + String(registration) + "',\
                 id_funcao = (SELECT funcao.id FROM funcao WHERE name = '" + employeeFunction + "' LIMIT 1)" + ",\
                 id_tipo = (SELECT funcionarios_tipos.id FROM funcionarios_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + ",\
@@ -791,6 +788,73 @@ function editGuest(req, res){
     }); 
 }
 
+function addVehicle(req, res){
+
+    let id = req.body.id
+    let sql = "DELETE FROM veiculos_funcionarios WHERE id_owner = " + id + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        
+        addVehicleContinue(req, res)
+    });            
+}
+
+function addVehicleContinue(req, res){
+
+    let id = req.body.id
+    let vehicles = req.body.vehicles
+
+    vehicles.forEach(element => {
+    
+        let sql = "INSERT INTO veiculos_funcionarios (id_owner, id_tipo, id_modelo, id_marca, placa, status) \
+            VALUES (" + id + ", "+ element.type + ", " + element.model + ", " +
+             element.brand + ", " + element.plate + ", 1)"
+
+        log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err) throw err;  
+            res.json({"success": result}); 
+        });
+    });
+}
+
+function getVehicleTypes(req, res){
+    
+    let sql =  "SELECT *, UPPER(name) AS name FROM veiculos_tipos ORDER BY name;"
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;          
+        res.json({"success": result});        
+    });
+}
+
+function getVehicleModels(req, res){
+    
+    let sql =  "SELECT *, UPPER(name) AS name FROM veiculos_modelos ORDER BY name;"
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;          
+        res.json({"success": result});        
+    });
+}
+
+function getVehicleBrands(req, res){
+    
+    let sql =  "SELECT *, UPPER(name) AS name FROM veiculos_marcas ORDER BY name;"
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;          
+        res.json({"success": result});        
+    });
+}
+
 app.post('/getAuth', function(req, res) {
         
     let username = req.body.username
@@ -801,8 +865,7 @@ app.post('/getAuth', function(req, res) {
     let sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "' ORDER BY id LIMIT 1;";        
 
     con.query(sql, function (err1, result) {        
-        if (err1) throw err1;  
-        
+        if (err1) throw err1;          
         res.json({"success": result});        
     });                        
 });
@@ -874,6 +937,7 @@ app.post('/getEmployeesByName', function(req, res) {
         funcionarios.obs,\
         funcionarios.matricula AS matricula,\
         funcionarios.status,\
+        funcionarios.ramal,\
         crachas.id_cracha AS CRACHA,\
         crachas.id_tipo AS CRACHA_TIPO,\
         funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
@@ -1347,8 +1411,6 @@ app.post('/saveAccessProfileSector', function(req, res) {
     updateProfileDayweekConfigBySector(req, res)        
 });
 
-
-
 app.post('/saveAccessProfileGuest', function(req, res) {
     saveAccessProfileGuest(req, res)    
 });
@@ -1561,6 +1623,22 @@ app.post('/addGuest', function(req, res) {
 
 app.post('/editGuest', function(req, res) {
     editGuest(req, res)
+});
+
+app.post('/addVehicle', function(req, res) {
+    addVehicle(req, res)
+});
+
+app.post('/getVehicleTypes', function(req, res) {
+    getVehicleTypes(req, res)
+});
+
+app.post('/getVehicleModels', function(req, res) {
+    getVehicleModels(req, res)
+});
+
+app.post('/getVehicleBrands', function(req, res) {
+    getVehicleBrands(req, res)
 });
 
 
