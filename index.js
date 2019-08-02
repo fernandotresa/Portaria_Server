@@ -592,9 +592,9 @@ function addEmployee(req, res){
     let employeeSector = req.body.employeeSector
     let employeeCompany = req.body.employeeCompany
     let employeeOffice = req.body.employeeOffice
-    let foto = "VAZIO"
-    let fotosamba = "VAZIO"
-    let fotoweb = "VAZIO"
+    let foto = "./assets/imgs/default-user.png"
+    let fotosamba = "./assets/imgs/default-user.png"
+    let fotoweb = "./assets/imgs/default-user.png"
     let obs = "VAZIO"        
 
     let sql = "INSERT INTO funcionarios (name, name_comum, rg, cpf, endereco, bairro, telefone, foto, fotosamba, ramal,\
@@ -646,9 +646,9 @@ function editEmployee(req, res){
     let employeeSector = req.body.employeeSector
     let employeeCompany = req.body.employeeCompany
     let employeeOffice = req.body.employeeOffice
-    let foto = "VAZIO"
-    let fotosamba = "VAZIO"
-    let fotoweb = "VAZIO"
+    let foto = "./assets/imgs/default-user.png"
+    let fotosamba = "./assets/imgs/default-user.png"
+    let fotoweb = "./assets/imgs/default-user.png"
     let obs = "VAZIO"
         
 
@@ -700,9 +700,9 @@ function addGuest(req, res){
     let employeeSector = req.body.employeeSector
     let employeeCompany = req.body.employeeCompany
     let employeeOffice = req.body.employeeOffice
-    let foto = "VAZIO"
-    let fotosamba = "VAZIO"
-    let fotoweb = "VAZIO"
+    let foto = "./assets/imgs/default-user.png"
+    let fotosamba = "./assets/imgs/default-user.png"
+    let fotoweb = "./assets/imgs/default-user.png"
     let obs = "VAZIO"        
 
     let sql = "INSERT INTO visitantes (name, id_autorizado_por, rg, cpf, endereco, bairro, telefone, foto, fotosamba \
@@ -752,9 +752,9 @@ function editGuest(req, res){
     let employeeSector = req.body.employeeSector
     let employeeCompany = req.body.employeeCompany
     let employeeOffice = req.body.employeeOffice
-    let foto = "VAZIO"
-    let fotosamba = "VAZIO"
-    let fotoweb = "VAZIO"
+    let foto = "./assets/imgs/default-user.png"
+    let fotosamba = "./assets/imgs/default-user.png"
+    let fotoweb = "./assets/imgs/default-user.png"
     let obs = "VAZIO"
         
 
@@ -788,6 +788,30 @@ function editGuest(req, res){
     }); 
 }
 
+function getVehicleByEmployeeId(req, res){        
+
+    let id = req.body.id
+    
+    let sql =  "SELECT \
+        veiculos_funcionarios.placa AS plate,\
+        veiculos_marcas.name AS brand,\
+        UPPER(veiculos_modelos.name) AS model,\
+        UPPER(veiculos_tipos.name) AS type \
+        FROM veiculos_funcionarios \
+        INNER JOIN veiculos_marcas ON veiculos_marcas.id = veiculos_funcionarios.id_marca \
+        INNER JOIN veiculos_modelos ON veiculos_modelos.id = veiculos_funcionarios.id_modelo \
+        INNER JOIN veiculos_tipos ON veiculos_tipos.id = veiculos_funcionarios.id_tipo \
+            WHERE veiculos_funcionarios.id_owner = " + id + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;          
+
+        res.json({"success": result});        
+    });
+}
+
 function addVehicle(req, res){
 
     let id = req.body.id
@@ -810,8 +834,11 @@ function addVehicleContinue(req, res){
     vehicles.forEach(element => {
     
         let sql = "INSERT INTO veiculos_funcionarios (id_owner, id_tipo, id_modelo, id_marca, placa, status) \
-            VALUES (" + id + ", "+ element.type + ", " + element.model + ", " +
-             element.brand + ", " + element.plate + ", 1)"
+            VALUES (" + id + ",\
+            (SELECT veiculos_tipos.id FROM veiculos_tipos WHERE veiculos_tipos.name = '"+ element.type + "' LIMIT 1),\
+            (SELECT veiculos_modelos.id FROM veiculos_modelos WHERE veiculos_modelos.name = '"+ element.model + "' LIMIT 1),\
+            (SELECT veiculos_marcas.id FROM veiculos_marcas WHERE veiculos_marcas.name = '"+ element.brand + "' LIMIT 1),\
+            '" + element.plate + "', 1)"
 
         log_(sql)
 
@@ -1641,5 +1668,8 @@ app.post('/getVehicleBrands', function(req, res) {
     getVehicleBrands(req, res)
 });
 
+app.post('/getVehicleByEmployeeId', function(req, res) {    
+    getVehicleByEmployeeId(req, res)
+});
 
 http.listen(8085);
