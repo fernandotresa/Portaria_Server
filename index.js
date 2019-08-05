@@ -877,6 +877,37 @@ function getVehicleBrands(req, res){
     });
 }
 
+function getAccessPoints(req, res){
+
+    let sql = "SELECT * FROM pontos;";    
+    log_(sql)    
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });  
+}
+
+function getAccessPointsEmployee(req, res){
+
+    let id = req.body.id
+
+    let sql = "SELECT \
+            pontos.* \
+            FROM acessos_permitidos \
+            INNER JOIN pontos ON pontos.id = acessos_permitidos.id_ponto \
+            INNER JOIN funcionarios ON funcionarios.id_cracha = acessos_permitidos.id_cracha \
+            INNER JOIN crachas ON crachas.id = funcionarios.id_cracha \
+                WHERE funcionarios.id = " + id + ";";
+
+    log_(sql)    
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });
+}
+
 app.post('/getAuth', function(req, res) {
         
     let username = req.body.username
@@ -1651,28 +1682,11 @@ app.post('/getVehicleByEmployeeId', function(req, res) {
 });
 
 app.post('/getAccessPoints', function(req, res) {    
-    
-    let sql = "SELECT * FROM pontos;";        
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+    getAccessPoints(req, res)                
 });
 
-app.post('/getAccessPointsEmployee', function(req, res) {    
-    
-        let sql = "SELECT \
-        acessos_permitidos.id_ponto \
-        FROM acessos_permitidos \
-        INNER JOIN funcionarios ON funcionarios.id_cracha = acessos_permitidos.id_cracha \
-        INNER JOIN crachas ON crachas.id = funcionarios.id_cracha \
-            WHERE funcionarios.id = %1;";
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+app.post('/getAccessPointsEmployee', function(req, res) {        
+    getAccessPointsEmployee(req, res)                                
 });
 
 http.listen(8085);
