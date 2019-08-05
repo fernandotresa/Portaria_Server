@@ -692,10 +692,8 @@ function addGuest(req, res){
     let cpf = req.body.cpf
     let district = req.body.district
     let tel = req.body.tel
-    let ramal = req.body.ramal
     let registration = req.body.registration
     let badge = req.body.badge
-    let employeeFunction = req.body.employeeFunction
     let employeeType = req.body.employeeType
     let employeeSector = req.body.employeeSector
     let employeeCompany = req.body.employeeCompany
@@ -718,8 +716,7 @@ function addGuest(req, res){
             foto + "', '" + 
             fotosamba + "', '" +
             registration + "', " +            
-            "(SELECT funcao.id FROM funcao WHERE name = '" + employeeFunction + "' LIMIT 1)" + "," +
-            "(SELECT funcionarios_tipos.id FROM funcionarios_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + "," +
+            "(SELECT visitantes_tipos.id FROM visitantes_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + "," +
             "(SELECT setores.id FROM setores WHERE name = '" + employeeSector + "' LIMIT 1)" + "," +
             "(SELECT empresas.id FROM empresas WHERE name = '" + employeeCompany + "' LIMIT 1)" + "," +
             "(SELECT cargos.id FROM cargos WHERE name = '" + employeeOffice + "' LIMIT 1)" + ", '," + 
@@ -747,7 +744,6 @@ function editGuest(req, res){
     let tel = req.body.tel    
     let registration = req.body.registration
     let badge = req.body.badge
-    let employeeFunction = req.body.employeeFunction
     let employeeType = req.body.employeeType
     let employeeSector = req.body.employeeSector
     let employeeCompany = req.body.employeeCompany
@@ -769,8 +765,7 @@ function editGuest(req, res){
                 foto = '" + foto + "',\
                 fotosamba = '" + fotosamba + "',\
                 matricula = '" + String(registration) + "',\
-                id_funcao = (SELECT funcao.id FROM funcao WHERE name = '" + employeeFunction + "' LIMIT 1)" + ",\
-                id_tipo = (SELECT funcionarios_tipos.id FROM funcionarios_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + ",\
+                id_tipo = (SELECT visitantes_tipos.id FROM visitantes_tipos WHERE name = '" + employeeType + "' LIMIT 1)" + ",\
                 id_setor = (SELECT setores.id FROM setores WHERE name = '" + employeeSector + "' LIMIT 1)" + ",\
                 id_empresa = (SELECT empresas.id FROM empresas WHERE name = '" + employeeCompany + "' LIMIT 1)"  + ",\
                 id_cargo = (SELECT cargos.id FROM cargos WHERE name = '" + employeeOffice + "' LIMIT 1)" + ",\
@@ -923,7 +918,10 @@ app.post('/getEmployees', function(req, res) {
         setores.name AS SETOR,\
         setores.id AS SETOR_ID,\
         funcao.name AS FUNCAO,\
+        funcao.id AS FUNCAO_ID,\
         empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
         cargos.name AS CARGO \
     FROM funcionarios \
     LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
@@ -970,8 +968,11 @@ app.post('/getEmployeesByName', function(req, res) {
         funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
         setores.name AS SETOR,\
         setores.id AS SETOR_ID,\
-        empresas.name AS EMPRESA,\
         funcao.name AS FUNCAO,\
+        funcao.id AS FUNCAO_ID,\
+        empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
         cargos.name AS CARGO \
     FROM funcionarios \
     LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
@@ -1012,15 +1013,24 @@ app.post('/getGuests', function(req, res) {
         funcionarios.id AS AUTORIZANTE_ID,\
         visitantes_tipos.id AS id_tipo,\
         visitantes_tipos.name AS TIPO,\
-        empresas.name AS EMPRESA \
+        empresas.name AS EMPRESA,\
+        setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
+        empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
+        cargos.name AS CARGO \
     FROM visitantes \
     LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
     LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
     LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
     LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
+    LEFT JOIN  setores ON setores.id =  visitantes.id_setor \
+    LEFT JOIN  cargos ON cargos.id =  visitantes.id_cargo \
     WHERE visitantes.name IS NOT NULL \
     ORDER BY visitantes.name ASC \
     LIMIT 0,20;";
+
 
     log_(sql)    
 
@@ -1054,12 +1064,20 @@ app.post('/getGuestsByName', function(req, res) {
         funcionarios.id AS AUTORIZANTE_ID,\
         visitantes_tipos.id AS id_tipo,\
         visitantes_tipos.name AS TIPO,\
-        empresas.name AS EMPRESA \
+        empresas.name AS EMPRESA,\
+        setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
+        empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
+        cargos.name AS CARGO \
     FROM visitantes \
     LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
     LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
     LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
     LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
+    LEFT JOIN  setores ON setores.id =  visitantes.id_setor \
+    LEFT JOIN  cargos ON cargos.id =  visitantes.id_cargo \
     WHERE visitantes.name LIKE '%" + name + "%' AND visitantes.name IS NOT NULL;";
 
     con.query(sql, function (err1, result) {        
@@ -1352,8 +1370,6 @@ app.post('/getAclsNameEmployee', function(req, res) {
             
     let idEmployee = req.body.idEmployee
 
-    log_('Verificando informaçẽs de ACL colaborador: ' + idEmployee)
-
     let sql = "SELECT acls.*, \
         acls_permissoes.name AS permissao,\
         acls_permissoes.acl_value \
@@ -1373,8 +1389,6 @@ app.post('/getAclsNameEmployee', function(req, res) {
 app.post('/getAccessProfilesNameGuest', function(req, res) {
             
     let idGuest = req.body.idGuest
-
-    log_('Verificando informaçẽs do perfil visitante: ' + idGuest)
     
     let sql = "SELECT acessos_controle_perfil.name \
         FROM acessos_controle \
@@ -1393,8 +1407,6 @@ app.post('/getAccessProfilesNameGuest', function(req, res) {
 app.post('/getEmployeesBySector', function(req, res) {
             
     let idSector = req.body.idSector
-
-    log_('Verificando colaboradores do setor: ' + idSector)
     
     let sql = "SELECT \
         funcionarios.id,\
@@ -1444,10 +1456,7 @@ app.post('/saveAccessProfileGuest', function(req, res) {
 
 app.post('/getAccessProfileGuests', function(req, res) {
             
-    let idGuest = req.body.idGuest
-
-    log_('Verificando informaçẽs do perfil colaborador: ' + idGuest)
-    
+    let idGuest = req.body.idGuest    
     let sql = "SELECT * FROM acessos_controle WHERE id_guest = " + idGuest + ";";        
     log_(sql)
 
@@ -1458,8 +1467,6 @@ app.post('/getAccessProfileGuests', function(req, res) {
 });
 
 app.post('/getAcls', function(req, res) {                
-
-    log_('Verificando informaçẽs das ACLS')
     
     let sql = "SELECT acls.*, \
                 acls_permissoes.name AS permissao,\
@@ -1478,7 +1485,6 @@ app.post('/getAcls', function(req, res) {
 app.post('/getACLByName', function(req, res) {                
 
     let name = req.body.name
-    log_('Verificando informaçoẽs das ACL: ' + name)
     
     let sql = "SELECT acls.*, \
                 acls_permissoes.name AS permissao,\
@@ -1510,8 +1516,6 @@ app.post('/delAcl', function(req, res) {
 app.post('/getAclsUser', function(req, res) {                
 
     let idUser = req.body.idUser
-
-    log_('Verificando informação ACL do usuário: ' + idUser)
     
     let sql = "SELECT * FROM users_acls \
             WHERE id_user = " + idUser + ";";
@@ -1527,7 +1531,6 @@ app.post('/getAclsUser', function(req, res) {
 app.post('/getAclsSectorsById', function(req, res) {                
 
     let idAcl = req.body.idAcl
-    log_('Verificando informaçẽs das ACLS por id: ' + idAcl)
     
     let sql = "SELECT acls_setores.*, false AS checked \
                 FROM acls_setores \
@@ -1546,7 +1549,6 @@ app.post('/saveAclsUser', function(req, res) {
     let idUser = req.body.idUser
     let acls = req.body.acls
 
-    log_('Salvando ACL para usuário: ' + idUser)
     delAclUser(idUser)
     
     acls.forEach(element => {
@@ -1568,9 +1570,6 @@ app.post('/saveAclsUser', function(req, res) {
 app.post('/getAclsUserSector', function(req, res) {                
 
     let idUser = req.body.idUser
-
-    log_('Verificando informação ACL por SETORES do usuário: ' + idUser)
-
     
     let sql = "SELECT acls.id AS ACL_ID,\
             acls.name AS ACL_NOME,\
@@ -1595,8 +1594,6 @@ app.post('/getAclsUserSector', function(req, res) {
 });
 
 app.post('/getUsers', function(req, res) {                    
-
-    log_('Verificando informação dos usuários')
     
     let sql = "SELECT * FROM users;";
 
@@ -1611,7 +1608,6 @@ app.post('/getUsers', function(req, res) {
 app.post('/getUserByName', function(req, res) {
             
     let name = req.body.name
-    log_('Verificando usuário por nome: ' + name)
     
     let sql = "SELECT * FROM users \
         WHERE users.username LIKE '%" + name + "%';";
