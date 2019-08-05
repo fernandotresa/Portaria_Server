@@ -894,8 +894,6 @@ app.post('/getAuth', function(req, res) {
 
 app.post('/getEmployees', function(req, res) {            
 
-    log_('Verificando colaboradores')
-
     let sql = "SELECT \
         funcionarios.id,\
         funcionarios.name AS name,\
@@ -946,8 +944,6 @@ app.post('/getEmployeesByName', function(req, res) {
 
     let name = req.body.name
 
-    log_('Verificando colaboradores por nome ' + name)
-
     let sql = "SELECT \
         funcionarios.id,\
         funcionarios.name AS name,\
@@ -992,8 +988,6 @@ app.post('/getEmployeesByName', function(req, res) {
 });
 
 app.post('/getGuests', function(req, res) {
-            
-    log_('Verificando visitantes')
     
     let sql = "SELECT \
         visitantes.id,\
@@ -1031,7 +1025,6 @@ app.post('/getGuests', function(req, res) {
     ORDER BY visitantes.name ASC \
     LIMIT 0,20;";
 
-
     log_(sql)    
 
     con.query(sql, function (err1, result) {        
@@ -1042,9 +1035,7 @@ app.post('/getGuests', function(req, res) {
 
 app.post('/getGuestsByName', function(req, res) {
             
-    let name = req.body.name
-
-    log_('Verificando visitantes por nome ' + name)
+    let name = req.body.name    
     
     let sql = "SELECT \
         visitantes.id,\
@@ -1086,9 +1077,7 @@ app.post('/getGuestsByName', function(req, res) {
     });                        
 });
 
-app.post('/getAccessGroups', function(req, res) {
-            
-    log_('Verificando Perfis de acesso')
+app.post('/getAccessGroups', function(req, res) {                
     
     let sql = "SELECT acessos_controle_perfil.*,\
             acessos_controle_tipo.name AS type,\
@@ -1106,9 +1095,7 @@ app.post('/getAccessGroups', function(req, res) {
 app.post('/getAccessGroupsByName', function(req, res) {
             
     let name = req.body.name
-    let idAccessGroupType = req.body.idAccessGroupType
-
-    log_('Verificando Perfis de acesso por nome: ' + name)
+    let idAccessGroupType = req.body.idAccessGroupType    
     
     let sql = "SELECT acessos_controle_perfil.*,\
             acessos_controle_tipo.name AS type,\
@@ -1148,8 +1135,7 @@ app.post('/getAccessGroupsTypeById', function(req, res) {
 
 app.post('/getAccessGroupsTypes', function(req, res) {
             
-    let idAccessGroupType = req.body.idAccessGroupType
-    log_('Verificando Tipos Perfis de acesso por id: ' + idAccessGroupType)
+    let idAccessGroupType = req.body.idAccessGroupType    
     
     let sql = "SELECT * \
             FROM acessos_controle_tipo \
@@ -1166,9 +1152,7 @@ app.post('/getAccessGroupsTypes', function(req, res) {
 app.post('/getAccessGroupsBySector', function(req, res) {
             
     let name = req.body.name
-    let idAccessGroupType = req.body.idAccessGroupType
-
-    log_('Verificando Perfis de acesso por nome: ' + name)
+    let idAccessGroupType = req.body.idAccessGroupType    
     
     let sql = "SELECT acessos_controle_perfil.*,\
             acessos_controle_tipo.name AS type,\
@@ -1188,9 +1172,7 @@ app.post('/getAccessGroupsBySector', function(req, res) {
     });                        
 });
 
-app.post('/getWorkFunctions', function(req, res) {
-            
-    log_('Verificando funções')
+app.post('/getWorkFunctions', function(req, res) {                
     
     let sql = "SELECT * FROM funcao;";        
 
@@ -1666,6 +1648,31 @@ app.post('/getVehicleBrands', function(req, res) {
 
 app.post('/getVehicleByEmployeeId', function(req, res) {    
     getVehicleByEmployeeId(req, res)
+});
+
+app.post('/getAccessPoints', function(req, res) {    
+    
+    let sql = "SELECT * FROM pontos;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getAccessPointsEmployee', function(req, res) {    
+    
+        let sql = "SELECT \
+        acessos_permitidos.id_ponto \
+        FROM acessos_permitidos \
+        INNER JOIN funcionarios ON funcionarios.id_cracha = acessos_permitidos.id_cracha \
+        INNER JOIN crachas ON crachas.id = funcionarios.id_cracha \
+            WHERE funcionarios.id = %1;";
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
 });
 
 http.listen(8085);
