@@ -937,7 +937,7 @@ function addAccessPointsEmployee(req, res){
             (SELECT crachas.id FROM crachas WHERE crachas.id_cracha = '" + badge + "' ORDER by crachas.id LIMIT 1),\
             (SELECT pontos.id FROM pontos WHERE pontos.name = '" + element + "' ORDER by pontos.id LIMIT 1), NOW() )"
 
-            log_(sql)
+        log_(sql)
     
         con.query(sql, function (err, result) {        
             if (err) throw err;                            
@@ -956,8 +956,178 @@ function activeCracha(req, res){
     let sql = "UPDATE crachas SET id_status = 1 WHERE \
             id_cracha = '" + badge + "' ORDER by id LIMIT 1;";
 
-    execDb(sql)    
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;                            
+    });
 }
+
+function addCompany(req, res){
+
+    let name = req.body.name
+    let responsavel = req.body.responsavel
+    let endereco = req.body.endereco
+    let bairro = req.body.bairro
+    let cnpj = req.body.cnpj
+    let tel = req.body.tel
+    let status = req.body.status
+    let status_ = status === 'Ativo'
+    
+    let sql =  "INSERT INTO empresas \
+        (name, cnpj, endereco, bairro, responsavel,  status, telefone) \
+                VALUES ('" + name + "', '"+ cnpj+"', '"+endereco+"', '"+bairro+"',\
+                '"+responsavel+"', "+status_+", '"+tel +"')";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function saveCompany(req, res){
+
+    let id = req.body.id
+    let name = req.body.name
+    let responsavel = req.body.responsavel
+    let endereco = req.body.endereco
+    let bairro = req.body.bairro
+    let cnpj = req.body.cnpj
+    let tel = req.body.tel
+    let status = req.body.status
+    
+    let sql =  "UPDATE empresas SET \
+        name = '"+name+"',\
+        cnpj = '"+cnpj+"',\
+        endereco = '"+endereco+"',\
+        bairro = '"+bairro+"',\
+        responsavel = '"+responsavel+"',\
+        status = "+status+", \
+        telefone = '"+tel+"' \
+    WHERE id = "+id+";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function delCompany(req, res){
+
+    let id = req.body.id
+       
+    let sql =  "UPDATE empresas SET status = 0 WHERE id = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+// CARGOS 
+
+function addOffice(req, res){
+
+    let name = req.body.name    
+    let status = req.body.status
+    
+    let sql = "INSERT INTO cargos (name, status) VALUES ('" + name + "', "+ status+"')";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function saveOffice(req, res){
+
+    let id = req.body.id
+    let name = req.body.name   
+    let status = req.body.status
+    
+    let sql =  "UPDATE cargos SET \
+        name = '"+name+"',\
+        status = "+status+" \
+    WHERE id = "+id+";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function delOffice(req, res){
+
+    let id = req.body.id
+       
+    let sql =  "UPDATE cargos SET status = 0 WHERE id = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+// SETORES 
+
+function addSector(req, res){
+
+    let name = req.body.name    
+    let status = req.body.status
+    
+    let sql = "INSERT INTO setores (name, status) VALUES ('" + name + "', "+ status+"')";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function saveSector(req, res){
+
+    let id = req.body.id
+    let name = req.body.name   
+    let status = req.body.status
+    
+    let sql =  "UPDATE setores SET \
+        name = '"+name+"',\
+        status = "+status+" \
+    WHERE id = "+id+";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function delSector(req, res){
+
+    let id = req.body.id
+       
+    let sql =  "UPDATE setores SET status = 0 WHERE id = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+//
 
 app.post('/getAuth', function(req, res) {
         
@@ -1300,11 +1470,32 @@ app.post('/getSectors', function(req, res) {
     });                        
 });
 
-app.post('/getCompanies', function(req, res) {
-            
-    log_('Verificando Empresas')
+app.post('/getSectorsByName', function(req, res) {                
+    
+    let sql = "SELECT * FROM setores WHERE name LIKE '%" + req.body.name + "%';";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getCompanies', function(req, res) {                
     
     let sql = "SELECT * FROM empresas;";        
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getCompaniesByName', function(req, res) {                
+    
+    let sql = "SELECT * FROM empresas WHERE name LIKE '%" + req.body.name + "%';";        
+    log_(sql)
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -1317,6 +1508,18 @@ app.post('/getOffices', function(req, res) {
     log_('Verificando Cargos')
     
     let sql = "SELECT * FROM cargos;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });                        
+});
+
+app.post('/getOfficeByName', function(req, res) {                
+    
+    let sql = "SELECT * FROM cargos WHERE name LIKE '%" + req.body.name + "%';";        
+    
+    log_(sql)
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -1742,6 +1945,42 @@ app.post('/getAccessPointsEmployee', function(req, res) {
 
 app.post('/addAccessPointsEmployee', function(req, res) {       
     removeAccessPointsEmployee(req, res)
+});
+
+app.post('/addCompany', function(req, res) {       
+    addCompany(req, res)
+});
+
+app.post('/saveCompany', function(req, res) {       
+    saveCompany(req, res)
+});
+
+app.post('/delCompany', function(req, res) {       
+    delCompany(req, res)
+});
+
+app.post('/addOffice', function(req, res) {       
+    addOffice(req, res)
+});
+
+app.post('/saveOffice', function(req, res) {       
+    saveOffice(req, res)
+});
+
+app.post('/delOffice', function(req, res) {       
+    delOffice(req, res)
+});
+
+app.post('/addSector', function(req, res) {       
+    addSector(req, res)
+});
+
+app.post('/saveSector', function(req, res) {       
+    saveSector(req, res)
+});
+
+app.post('/delSector', function(req, res) {       
+    delSector(req, res)
 });
 
 http.listen(8085);
