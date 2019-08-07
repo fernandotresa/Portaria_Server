@@ -908,6 +908,57 @@ function getAccessPointsEmployee(req, res){
     });
 }
 
+function removeAccessPointsEmployee(req, res){
+
+    let id = req.body.badge
+
+    let sql = "DELETE FROM acessos_permitidos WHERE id_cracha = \
+    ( SELECT id FROM crachas WHERE id_cracha = " + id + " ORDER by id LIMIT 1);";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;   
+
+        addAccessPointsEmployee(req, res)               
+    });
+}
+
+function addAccessPointsEmployee(req, res){
+
+    console.log(req.body)
+    let accessPoints = req.body.accessPoints
+    let badge = req.body.badge
+
+    accessPoints.forEach(element => {
+    
+        let sql = "INSERT INTO acessos_permitidos (id_cracha, id_ponto, datahora) \
+        VALUES (\
+            (SELECT crachas.id FROM crachas WHERE crachas.id_cracha = '" + badge + "' ORDER by crachas.id LIMIT 1),\
+            (SELECT pontos.id FROM pontos WHERE pontos.name = '" + element + "' ORDER by pontos.id LIMIT 1), NOW() )"
+
+            log_(sql)
+    
+        con.query(sql, function (err, result) {        
+            if (err) throw err;                            
+        });
+    });
+
+    activeCracha(req, res)
+
+    res.json({"success": 1});        
+}
+
+function activeCracha(req, res){
+
+    let badge = req.body.badge
+
+    let sql = "UPDATE crachas SET id_status = 1 WHERE \
+            id_cracha = '" + badge + "' ORDER by id LIMIT 1;";
+
+    execDb(sql)    
+}
+
 app.post('/getAuth', function(req, res) {
         
     let username = req.body.username
@@ -1687,6 +1738,10 @@ app.post('/getAccessPoints', function(req, res) {
 
 app.post('/getAccessPointsEmployee', function(req, res) {        
     getAccessPointsEmployee(req, res)                                
+});
+
+app.post('/addAccessPointsEmployee', function(req, res) {       
+    removeAccessPointsEmployee(req, res)
 });
 
 http.listen(8085);
