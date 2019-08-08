@@ -1035,9 +1035,9 @@ function addOffice(req, res){
 
     let name = req.body.name    
     let status = req.body.status
+    let status_ = status === 'Ativo'
     
-    let sql = "INSERT INTO cargos (name, status) VALUES ('" + name + "', "+ status+"')";
-
+    let sql = "INSERT INTO cargos (name, status) VALUES ('" + name + "', "+ status_+")";
     log_(sql)
 
     con.query(sql, function (err, result) {        
@@ -1051,12 +1051,9 @@ function saveOffice(req, res){
     let id = req.body.id
     let name = req.body.name   
     let status = req.body.status
+    let status_ = status === 'Ativo'
     
-    let sql =  "UPDATE cargos SET \
-        name = '"+name+"',\
-        status = "+status+" \
-    WHERE id = "+id+";";
-
+    let sql =  "UPDATE cargos SET name = '"+name+"',status = "+status_+" WHERE id = "+id+";";
     log_(sql)
 
     con.query(sql, function (err, result) {        
@@ -1084,8 +1081,9 @@ function addSector(req, res){
 
     let name = req.body.name    
     let status = req.body.status
+    let status_ = status === 'Ativo'
     
-    let sql = "INSERT INTO setores (name, status) VALUES ('" + name + "', "+ status+"')";
+    let sql = "INSERT INTO setores (name, status) VALUES ('" + name + "', "+ status_+")";
 
     log_(sql)
 
@@ -1100,12 +1098,9 @@ function saveSector(req, res){
     let id = req.body.id
     let name = req.body.name   
     let status = req.body.status
+    let status_ = status === 'Ativo'
     
-    let sql =  "UPDATE setores SET \
-        name = '"+name+"',\
-        status = "+status+" \
-    WHERE id = "+id+";";
-
+    let sql =  "UPDATE setores SET name = '"+name+"',status = "+status_+" WHERE id = "+id+";";
     log_(sql)
 
     con.query(sql, function (err, result) {        
@@ -1518,7 +1513,7 @@ app.post('/getOffices', function(req, res) {
 app.post('/getOfficeByName', function(req, res) {                
     
     let sql = "SELECT * FROM cargos WHERE name LIKE '%" + req.body.name + "%';";        
-    
+
     log_(sql)
 
     con.query(sql, function (err1, result) {        
