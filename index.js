@@ -888,6 +888,17 @@ function getAccessPoints(req, res){
     });  
 }
 
+function getAccessPointsByName(req, res){
+
+    let sql = "SELECT * FROM pontos WHERE name LIKE '%" + req.body.name + "%';";
+    log_(sql)    
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });  
+}
+
 function getAccessPointsEmployee(req, res){
 
     let id = req.body.id
@@ -1931,7 +1942,11 @@ app.post('/getVehicleByEmployeeId', function(req, res) {
 });
 
 app.post('/getAccessPoints', function(req, res) {    
-    getAccessPoints(req, res)                
+    getAccessPoints(req, res)
+});
+
+app.post('/getAccessPointsByName', function(req, res) {    
+    getAccessPointsByName(req, res)
 });
 
 app.post('/getAccessPointsEmployee', function(req, res) {        
