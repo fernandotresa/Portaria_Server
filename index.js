@@ -19,6 +19,10 @@ function log_(str){
     console.log(msg)
 }
 
+/*************************
+ * BANCO DE DADOS
+ ****************************/
+
 var db_config = {
     host: "rds001.cacasorqzf2r.sa-east-1.rds.amazonaws.com",
     user: "portaria",
@@ -55,13 +59,68 @@ function handleDisconnect() {
 
 handleDisconnect()
 
+/*************************
+ * LOGIN
+ ****************************/
+
+function getAuth(req, res){
+
+    let username = req.body.username
+    let password = req.body.password
+
+    let sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "' ORDER BY id LIMIT 1;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;          
+        res.json({"success": result});        
+    });                        
+}
+
+/*************************
+ * PERFIS DE ACESSO
+ ****************************/
+
+function getAccessGroups(req, res){
+
+    let sql = "SELECT acessos_controle_perfil.*,\
+        acessos_controle_tipo.name AS type,\
+        acessos_controle_tipo.id AS type_id,\
+        FALSE as checked \
+        FROM acessos_controle_perfil \
+    INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type;";        
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    }); 
+}
+
+function getAccessGroupsByName(req, res){
+
+    let name = req.body.name
+    let idAccessGroupType = req.body.idAccessGroupType    
+    
+    let sql = "SELECT acessos_controle_perfil.*,\
+            acessos_controle_tipo.name AS type,\
+            FALSE as checked \
+            FROM acessos_controle_perfil \
+        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
+        WHERE acessos_controle_perfil.name LIKE '%" + name + "%' \
+        AND acessos_controle_tipo.id = " + idAccessGroupType + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });
+}
+
 function createProfileExpire(req, res){
 
     let name = req.body.name
     let type = req.body.type
     let desc = req.body.desc    
-
-    log_('Adicionando Perfil de acesso: ' + name)
     
     let sql = "INSERT INTO acessos_controle_perfil (name, id_type, description) \
             VALUES ('"+ name + "', ( SELECT id FROM acessos_controle_tipo WHERE name = '" + type + "'), '" + desc + "');";        
@@ -79,8 +138,6 @@ function createProfileExpireConfig(req, res){
     let name = req.body.name    
     let  start = moment(req.body.start0).tz('America/Sao_Paulo').format()
     let  end = moment(req.body.end1).tz('America/Sao_Paulo').format()
-
-    log_('Configurando Perfil de acesso: ' + name)
     
     let sql = "INSERT INTO acessos_controle_config (id_profile, datetime_start, datetime_end) \
          VALUES ((SELECT id FROM acessos_controle_perfil ORDER BY id DESC LIMIT 1), '" + start + "', '" + end + "');";        
@@ -97,8 +154,6 @@ function updateProfileExpire(req, res){
     let name = req.body.name
     let type = req.body.type
     let desc = req.body.desc    
-
-    log_('Atualizando Perfil de acesso: ' + name)
     
     let sql = "UPDATE acessos_controle_perfil SET \
                 name = '" + name + "',\
@@ -120,8 +175,6 @@ function updateProfileExpireConfig(req, res){
     let name = req.body.name
     let  start = moment(req.body.start).tz('America/Sao_Paulo').format()
     let  end = moment(req.body.end).tz('America/Sao_Paulo').format()
-
-    log_('Atualizando configurações do Perfil de acesso: ' + name)
 
     let sqlRemove = "DELETE FROM acessos_controle_config WHERE id_profile = " + id + ";"
     log_(sqlRemove)
@@ -146,9 +199,7 @@ function createProfileDatetime(req, res){
     let name = req.body.name
     let type = req.body.type
     let desc = req.body.desc    
-    
-    log_('Adicionando Perfil de acesso: ' + name)    
-    
+        
     let sql = "INSERT INTO acessos_controle_perfil (name, id_type, description) \
             VALUES ('"+ name + "', ( SELECT id FROM acessos_controle_tipo WHERE name = '" + type + "'), '" + desc + "');";        
 
@@ -164,8 +215,6 @@ function createProfileDatetimeConfig(req, res){
     
     let name = req.body.name    
     let events = req.body.events   
-
-    log_('Configurando Perfil de acesso: ' + name)
 
     events.forEach(element => {
 
@@ -192,9 +241,7 @@ function updateProfileDatetime(req, res){
     let name = req.body.name
     let type = req.body.type
     let desc = req.body.desc    
-    
-    log_('Atualizando Perfil de acesso: ' + name)    
-    
+        
     let sql = "UPDATE acessos_controle_perfil SET \
             name = '" + name + "',\
             id_type = (SELECT acessos_controle_tipo.id FROM acessos_controle_tipo WHERE acessos_controle_tipo.name = '" + type + "'),\
@@ -213,8 +260,6 @@ function updateProfileDatetimeConfig(req, res){
     let name = req.body.name    
     let events = req.body.events   
     let id = req.body.idProfile
-
-    log_('Atualizando configurações do Perfil de acesso: ' + name)
 
     let sqlRemove = "DELETE FROM acessos_controle_config WHERE id_profile = " + id + ";"
     log_(sqlRemove)
@@ -249,9 +294,7 @@ function createProfileDayweek(req, res){
     let name = req.body.name
     let type = req.body.type
     let desc = req.body.desc    
-    
-    log_('Adicionando Perfil de acesso: ' + name)    
-    
+        
     let sql = "INSERT INTO acessos_controle_perfil (name, id_type, description) \
             VALUES ('"+ name + "', ( SELECT id FROM acessos_controle_tipo WHERE name = '" + type + "'), '" + desc + "');";        
 
@@ -265,11 +308,8 @@ function createProfileDayweek(req, res){
 
 function createProfileDayweekConfig(req, res){
     
-    let name = req.body.name    
+    //let name = req.body.name    
     let events = req.body.events   
-
-    log_('Configurando Perfil de acesso: ' + name)
-    console.log(events)
 
     events.forEach(element => {
         
@@ -298,9 +338,7 @@ function updateProfileDayweek(req, res){
     let name = req.body.name
     let type = req.body.type
     let desc = req.body.desc    
-    
-    log_('Atualizando Perfil de acesso: ' + name)    
-    
+        
     let sql = "UPDATE acessos_controle_perfil SET \
             name = '" + name + "',\
             id_type = (SELECT acessos_controle_tipo.id FROM acessos_controle_tipo WHERE acessos_controle_tipo.name = '" + type + "'),\
@@ -317,12 +355,10 @@ function updateProfileDayweek(req, res){
 
 function updateProfileDayweekConfig(req, res){
     
-    let name = req.body.name    
+    //let name = req.body.name    
     let events = req.body.events   
     let idProfile = req.body.idProfile
         
-    log_('Atualizando configuração do Perfil de acesso: ' + name)
-
     let sqlRemove = "DELETE FROM acessos_controle_config WHERE id_profile = " + idProfile + ";"
     log_(sqlRemove)
 
@@ -352,12 +388,82 @@ function updateProfileDayweekConfig(req, res){
     });     
 }
 
+function saveAccessProfileEmployee(req, res){
+
+    let employeeId = req.body.employeeId
+    let profiles = req.body.profiles
+
+    removeAccessProfileEmployee(req)
+    
+    profiles.forEach(element => {
+
+        let sql = "INSERT INTO acessos_controle (id_profile, id_employee) \
+            VALUES (" + element + ", " + employeeId + ");";
+
+        log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err) throw err;             
+        });                    
+    });    
+    
+    res.json({"success": 1}); 
+}
+
+function saveAccessProfileGuest(req, res){
+
+    let guestId = req.body.guestId
+    let profiles = req.body.profiles
+
+    removeAccessProfileGuest(req)
+    
+    profiles.forEach(element => {
+
+        let sql = "INSERT INTO acessos_controle (id_profile, id_guest) \
+            VALUES (" + element + ", " + guestId + ");";
+
+        log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err) throw err;             
+        });
+    });    
+    
+    res.json({"success": 1});        
+}
+
+function removeAccessProfileEmployee(req){
+
+    let employeeId = req.body.employeeId    
+    let sql = "DELETE FROM acessos_controle WHERE id_employee = " + employeeId + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+    });
+}
+
+function removeAccessProfileGuest(req){
+
+    let guestId = req.body.guestId
+    
+    let sql = "DELETE FROM acessos_controle WHERE id_guest = " + guestId + ";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+    });
+}
+
+/*************************
+ * LISTA DE ACESSO - ACL
+ ****************************/
+
 function addAcl(req, res){
 
     let name = req.body.name
     let permission = req.body.permission
-
-    log_('Adicionando nova ACL: ' + name)
 
     let sql = "INSERT INTO acls (name, id_permission) \
             VALUES ('" + name + "',\
@@ -397,13 +503,10 @@ function saveAcl(req, res){
     let name = req.body.name
     let permission = req.body.permission
 
-    log_("Atualizando ACL: " + name + " - Id: " + id)
-
     let sql = "UPDATE acls \
         SET name =  '" + name + "',\
         id_permission = (SELECT acls_permissoes.id FROM acls_permissoes WHERE acls_permissoes.name = '" + permission + "') \
         WHERE acls.id = " + id + ";"
-
 
     log_(sql)
 
@@ -443,8 +546,6 @@ function saveAclContinue(req, res){
 function delAcl(req, res){
     let name = req.body.acl.nome
     let id = req.body.acl.id
-
-    log_('Removendo ACL: ' + name)
     
     let sql = "DELETE FROM acls WHERE id = " + id + ";";        
     log_(sql)
@@ -456,9 +557,7 @@ function delAcl(req, res){
 }
 
 function delAclUser(idUser){
-    
-    log_('Removendo ACL: ' + idUser)
-    
+        
     let sql = "DELETE FROM users_acls WHERE id_user = " + idUser + ";";        
     log_(sql)
 
@@ -467,76 +566,11 @@ function delAclUser(idUser){
     });
 }
 
-function saveAccessProfileEmployee(req, res){
 
-    let employeeId = req.body.employeeId
-    let profiles = req.body.profiles
 
-    removeAccessProfileEmployee(req)
-    
-    profiles.forEach(element => {
-
-        let sql = "INSERT INTO acessos_controle (id_profile, id_employee) \
-            VALUES (" + element + ", " + employeeId + ");";
-
-        log_(sql)
-
-        con.query(sql, function (err, result) {        
-            if (err) throw err;             
-        });                    
-    });    
-    
-    res.json({"success": 1}); 
-}
-
-function saveAccessProfileGuest(req, res){
-
-    let guestId = req.body.guestId
-    let profiles = req.body.profiles
-
-    log_('Salvando profile para visitante: ' + guestId)
-    removeAccessProfileGuest(req)
-    
-    profiles.forEach(element => {
-
-        let sql = "INSERT INTO acessos_controle (id_profile, id_guest) \
-            VALUES (" + element + ", " + guestId + ");";
-
-        log_(sql)
-
-        con.query(sql, function (err, result) {        
-            if (err) throw err;             
-        });
-    });    
-    
-    res.json({"success": 1});        
-}
-
-function removeAccessProfileEmployee(req){
-
-    let employeeId = req.body.employeeId
-    
-    let sql = "DELETE FROM acessos_controle WHERE id_employee = " + employeeId + ";";
-
-    log_(sql)
-
-    con.query(sql, function (err, result) {        
-        if (err) throw err;             
-    });
-}
-
-function removeAccessProfileGuest(req){
-
-    let guestId = req.body.guestId
-    
-    let sql = "DELETE FROM acessos_controle WHERE id_guest = " + guestId + ";";
-
-    log_(sql)
-
-    con.query(sql, function (err, result) {        
-        if (err) throw err;             
-    });
-}
+/**************************************
+ * USUARIOS
+ *************************************/
 
 function blockUser(req, res){
 
@@ -573,6 +607,105 @@ function verificaCracha(req, res){
         if (err) throw err;             
         res.json({"success": result}); 
     });            
+}
+
+/***********************
+ * FUNCIONARIOS
+ ***********************/
+
+function getEmployee(req, res){
+
+    let sql = "SELECT \
+        funcionarios.id,\
+        funcionarios.name AS name,\
+        funcionarios.name_comum AS name_comum,\
+        funcionarios.cpf AS cpf,\
+        funcionarios.ramal AS ramal,\
+        funcionarios.rg AS rg,\
+        funcionarios.telefone AS telefone,\
+        funcionarios.endereco AS endereco,\
+        funcionarios.bairro AS bairro,\
+        funcionarios.obs,\
+        funcionarios.foto_web,\
+        funcionarios.matricula AS matricula,\
+        funcionarios.status,\
+        crachas.id AS CRACHA_ID,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        crachas.id_cracha AS CRACHA,\
+        funcionarios_tipos.id AS id_tipo,\
+        funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
+        setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
+        funcao.name AS FUNCAO,\
+        funcao.id AS FUNCAO_ID,\
+        empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
+        cargos.name AS CARGO \
+    FROM funcionarios \
+    LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
+    LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
+    LEFT JOIN  funcao ON funcao.id =  funcionarios.id_funcao \
+    LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
+    LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
+    LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
+    WHERE funcionarios.status = 1 \
+    ORDER BY funcionarios.name ASC \
+    LIMIT 0,20;";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    }); 
+}
+
+function getEmployeeByName(req, res){
+
+    let name = req.body.name
+
+    let sql = "SELECT \
+        funcionarios.id,\
+        funcionarios.name AS name,\
+        funcionarios.name_comum AS name_comum,\
+        funcionarios.cpf AS cpf,\
+        funcionarios.rg AS rg,\
+        funcionarios.telefone AS telefone,\
+        funcionarios.endereco AS endereco,\
+        funcionarios.bairro AS bairro,\
+        funcionarios.obs,\
+        funcionarios.foto_web,\
+        funcionarios.obs,\
+        funcionarios.matricula AS matricula,\
+        funcionarios.status,\
+        funcionarios.ramal,\
+        crachas.id_cracha AS CRACHA,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
+        setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
+        funcao.name AS FUNCAO,\
+        funcao.id AS FUNCAO_ID,\
+        empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
+        cargos.name AS CARGO \
+    FROM funcionarios \
+    LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
+    LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
+    LEFT JOIN  funcao ON funcao.id =  funcionarios.id_funcao \
+    LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
+    LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
+    LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
+    WHERE funcionarios.name LIKE '%" + name + "%';";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });
 }
 
 function addEmployee(req, res){
@@ -683,6 +816,99 @@ function editEmployee(req, res){
     }); 
 }
 
+/***********************
+ * VISITANTES
+ ***********************/
+
+ function getGuest(req, res){
+
+    let sql = "SELECT \
+        visitantes.id,\
+        visitantes.name AS name,\
+        visitantes.cpf AS cpf,\
+        visitantes.rg AS rg,\
+        visitantes.telefone AS telefone,\
+        visitantes.endereco AS endereco,\
+        visitantes.bairro AS bairro,\
+        visitantes.obs AS obs,\
+        visitantes.fotosamba,\
+        visitantes.status,\
+        crachas.id AS CRACHA_ID,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        crachas.id_cracha AS CRACHA,\
+        funcionarios.name AS AUTORIZANTE,\
+        funcionarios.id AS AUTORIZANTE_ID,\
+        visitantes_tipos.id AS id_tipo,\
+        visitantes_tipos.name AS TIPO,\
+        empresas.name AS EMPRESA,\
+        setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
+        empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
+        cargos.name AS CARGO \
+    FROM visitantes \
+    LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
+    LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
+    LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
+    LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
+    LEFT JOIN  setores ON setores.id =  visitantes.id_setor \
+    LEFT JOIN  cargos ON cargos.id =  visitantes.id_cargo \
+    WHERE visitantes.name IS NOT NULL \
+    ORDER BY visitantes.name ASC \
+    LIMIT 0,20;";
+
+    log_(sql)    
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });
+ }
+
+ function getGuestByName(req, res){
+    let name = req.body.name    
+    
+    let sql = "SELECT \
+        visitantes.id,\
+        visitantes.name AS name,\
+        visitantes.cpf AS cpf,\
+        visitantes.rg AS rg,\
+        visitantes.telefone AS telefone,\
+        visitantes.endereco AS endereco,\
+        visitantes.bairro AS bairro,\
+        visitantes.obs AS obs,\
+        visitantes.fotosamba,\
+        visitantes.status,\
+        crachas.id AS CRACHA_ID,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        crachas.id_cracha AS CRACHA,\
+        funcionarios.name AS AUTORIZANTE,\
+        funcionarios.id AS AUTORIZANTE_ID,\
+        visitantes_tipos.id AS id_tipo,\
+        visitantes_tipos.name AS TIPO,\
+        empresas.name AS EMPRESA,\
+        setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
+        empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
+        cargos.name AS CARGO \
+    FROM visitantes \
+    LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
+    LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
+    LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
+    LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
+    LEFT JOIN  setores ON setores.id =  visitantes.id_setor \
+    LEFT JOIN  cargos ON cargos.id =  visitantes.id_cargo \
+    WHERE visitantes.name LIKE '%" + name + "%' AND visitantes.name IS NOT NULL;";
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });  
+ }
+
 function addGuest(req, res){
 
     let name = req.body.name
@@ -783,6 +1009,10 @@ function editGuest(req, res){
     }); 
 }
 
+/***********************
+ * VEICULOS
+ ***********************/
+
 function getVehicleByEmployeeId(req, res){        
 
     let id = req.body.id
@@ -815,8 +1045,7 @@ function addVehicle(req, res){
     log_(sql)
 
     con.query(sql, function (err, result) {        
-        if (err) throw err;  
-        
+        if (err) throw err;          
         addVehicleContinue(req, res)
     });            
 }
@@ -876,6 +1105,177 @@ function getVehicleBrands(req, res){
         res.json({"success": result});        
     });
 }
+
+/***********************
+ * EMPRESAS
+ ***********************/
+
+function addCompany(req, res){
+
+    let name = req.body.name
+    let responsavel = req.body.responsavel
+    let endereco = req.body.endereco
+    let bairro = req.body.bairro
+    let cnpj = req.body.cnpj
+    let tel = req.body.tel
+    let status = req.body.status
+    let status_ = status === 'Ativo'
+    
+    let sql =  "INSERT INTO empresas \
+        (name, cnpj, endereco, bairro, responsavel,  status, telefone) \
+                VALUES ('" + name + "', '"+ cnpj+"', '"+endereco+"', '"+bairro+"',\
+                '"+responsavel+"', "+status_+", '"+tel +"')";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function saveCompany(req, res){
+
+    let id = req.body.id
+    let name = req.body.name
+    let responsavel = req.body.responsavel
+    let endereco = req.body.endereco
+    let bairro = req.body.bairro
+    let cnpj = req.body.cnpj
+    let tel = req.body.tel
+    let status = req.body.status
+    
+    let sql =  "UPDATE empresas SET \
+        name = '"+name+"',\
+        cnpj = '"+cnpj+"',\
+        endereco = '"+endereco+"',\
+        bairro = '"+bairro+"',\
+        responsavel = '"+responsavel+"',\
+        status = "+status+", \
+        telefone = '"+tel+"' \
+    WHERE id = "+id+";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function delCompany(req, res){
+
+    let id = req.body.id
+       
+    let sql =  "UPDATE empresas SET status = 0 WHERE id = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+/***********************
+ * CARGOS
+ ***********************/
+
+function addOffice(req, res){
+
+    let name = req.body.name    
+    let status = req.body.status
+    let status_ = status === 'Ativo'
+    
+    let sql = "INSERT INTO cargos (name, status) VALUES ('" + name + "', "+ status_+")";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function saveOffice(req, res){
+
+    let id = req.body.id
+    let name = req.body.name   
+    let status = req.body.status
+    let status_ = status === 'Ativo'
+    
+    let sql =  "UPDATE cargos SET name = '"+name+"',status = "+status_+" WHERE id = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function delOffice(req, res){
+
+    let id = req.body.id
+       
+    let sql =  "UPDATE cargos SET status = 0 WHERE id = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+/******************************
+ * SETORES
+ ********************************/
+
+function addSector(req, res){
+
+    let name = req.body.name    
+    let status = req.body.status
+    let status_ = status === 'Ativo'
+    
+    let sql = "INSERT INTO setores (name, status) VALUES ('" + name + "', "+ status_+")";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function saveSector(req, res){
+
+    let id = req.body.id
+    let name = req.body.name   
+    let status = req.body.status
+    let status_ = status === 'Ativo'
+    
+    let sql =  "UPDATE setores SET name = '"+name+"',status = "+status_+" WHERE id = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function delSector(req, res){
+
+    let id = req.body.id
+       
+    let sql =  "UPDATE setores SET status = 0 WHERE id = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+/***********************
+ * PONTOS DE ACESSO
+ ***********************/
 
 function getAccessPoints(req, res){
 
@@ -974,153 +1374,90 @@ function activeCracha(req, res){
     });
 }
 
-function addCompany(req, res){
+function addAccessPoint(req, res){
 
     let name = req.body.name
-    let responsavel = req.body.responsavel
-    let endereco = req.body.endereco
-    let bairro = req.body.bairro
-    let cnpj = req.body.cnpj
-    let tel = req.body.tel
     let status = req.body.status
     let status_ = status === 'Ativo'
+    let apType = req.body.apType
+    let apCu = req.body.apCu
+    let ipAddress = req.body.ipAddress
     
-    let sql =  "INSERT INTO empresas \
-        (name, cnpj, endereco, bairro, responsavel,  status, telefone) \
-                VALUES ('" + name + "', '"+ cnpj+"', '"+endereco+"', '"+bairro+"',\
-                '"+responsavel+"', "+status_+", '"+tel +"')";
+    let sql = "INSERT INTO pontos (name, status, id_tipo, ip, codigo) \
+            VALUES ('"+name+"', "+status_+", '"+apType+"', "+ipAddress+"', "+apCu+")";
 
     log_(sql)
 
     con.query(sql, function (err, result) {        
         if (err) throw err;  
-        res.json({"success": result}); 
+        removeCameraPonto(req, res)
     });    
 }
 
-function saveCompany(req, res){
+function removeCameraPonto(req, res){
+    let name = req.body.name
+
+    let sql = "DELETE FROM cameras_pontos WHERE id_ponto = \
+        (SELECT pontos.id FROM pontos WHERE pontos.name = '"+name+"' LIMIT 1);"
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        addCameraPonto(req, res)        
+    });    
+}
+
+function addCameraPonto(req, res){
+    let name = req.body.name
+    let ipCameras = req.body.ipCameras
+
+    ipCameras.forEach(element => {
+    
+        let sql = "INSERT INTO cameras_pontos (id_ponto, id_camera) \
+            VALUES (\
+                (SELECT pontos.id FROM pontos WHERE pontos.name = '"+name+"' LIMIT 1)\
+                (SELECT cameras.id FROM cameras WHERE cameras.name = '"+element+"' LIMIT 1))";
+
+        log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err) throw err;          
+        });    
+    }); 
+    
+    res.json({"success": 1}); 
+}
+
+function saveAccessPoint(req, res){
 
     let id = req.body.id
     let name = req.body.name
-    let responsavel = req.body.responsavel
-    let endereco = req.body.endereco
-    let bairro = req.body.bairro
-    let cnpj = req.body.cnpj
-    let tel = req.body.tel
-    let status = req.body.status
-    
-    let sql =  "UPDATE empresas SET \
-        name = '"+name+"',\
-        cnpj = '"+cnpj+"',\
-        endereco = '"+endereco+"',\
-        bairro = '"+bairro+"',\
-        responsavel = '"+responsavel+"',\
-        status = "+status+", \
-        telefone = '"+tel+"' \
-    WHERE id = "+id+";";
-
-    log_(sql)
-
-    con.query(sql, function (err, result) {        
-        if (err) throw err;  
-        res.json({"success": result}); 
-    });    
-}
-
-function delCompany(req, res){
-
-    let id = req.body.id
-       
-    let sql =  "UPDATE empresas SET status = 0 WHERE id = "+id+";";
-    log_(sql)
-
-    con.query(sql, function (err, result) {        
-        if (err) throw err;  
-        res.json({"success": result}); 
-    });    
-}
-
-// CARGOS 
-
-function addOffice(req, res){
-
-    let name = req.body.name    
     let status = req.body.status
     let status_ = status === 'Ativo'
+    let apType = req.body.apType
+    let apCu = req.body.apCu
+    let ipAddress = req.body.ipAddress
+    //let ipCameras = req.body.ipCameras
+
     
-    let sql = "INSERT INTO cargos (name, status) VALUES ('" + name + "', "+ status_+")";
-    log_(sql)
-
-    con.query(sql, function (err, result) {        
-        if (err) throw err;  
-        res.json({"success": result}); 
-    });    
-}
-
-function saveOffice(req, res){
-
-    let id = req.body.id
-    let name = req.body.name   
-    let status = req.body.status
-    let status_ = status === 'Ativo'
-    
-    let sql =  "UPDATE cargos SET name = '"+name+"',status = "+status_+" WHERE id = "+id+";";
-    log_(sql)
-
-    con.query(sql, function (err, result) {        
-        if (err) throw err;  
-        res.json({"success": result}); 
-    });    
-}
-
-function delOffice(req, res){
-
-    let id = req.body.id
-       
-    let sql =  "UPDATE cargos SET status = 0 WHERE id = "+id+";";
-    log_(sql)
-
-    con.query(sql, function (err, result) {        
-        if (err) throw err;  
-        res.json({"success": result}); 
-    });    
-}
-
-// SETORES 
-
-function addSector(req, res){
-
-    let name = req.body.name    
-    let status = req.body.status
-    let status_ = status === 'Ativo'
-    
-    let sql = "INSERT INTO setores (name, status) VALUES ('" + name + "', "+ status_+")";
+    let sql =   "UPDATE pontos SET \
+            name = '"+name+"',\
+            status = "+status_+",\
+            id_tipo = "+apType+"\
+            ip = '"+ipAddress+"',\
+            codigo = "+apCu+" \
+            WHERE id = "+id+"";
 
     log_(sql)
 
     con.query(sql, function (err, result) {        
         if (err) throw err;  
-        res.json({"success": result}); 
+        removeCameraPonto(req, res)
     });    
 }
 
-function saveSector(req, res){
-
-    let id = req.body.id
-    let name = req.body.name   
-    let status = req.body.status
-    let status_ = status === 'Ativo'
-    
-    let sql =  "UPDATE setores SET name = '"+name+"',status = "+status_+" WHERE id = "+id+";";
-    log_(sql)
-
-    con.query(sql, function (err, result) {        
-        if (err) throw err;  
-        res.json({"success": result}); 
-    });    
-}
-
-function delSector(req, res){
+function delAccessPoint(req, res){
 
     let id = req.body.id
        
@@ -1133,242 +1470,64 @@ function delSector(req, res){
     });    
 }
 
-//
+/***************************
+ * CRACHAS
+ *********************/ 
+
+function getBadges(req, res){
+    
+    let sql = "SELECT * FROM crachas;";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function getBadgesNumber(req, res){
+
+    let id = req.body.id
+    
+    let sql = "SELECT * FROM crachas WHERE id_cracha = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+/*************************
+ * APP POSTS
+ ********************************/
 
 app.post('/getAuth', function(req, res) {
-        
-    let username = req.body.username
-    let password = req.body.password
-
-    log_('Verificando credenciais: ' + ' - ' + username)
-
-    let sql = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "' ORDER BY id LIMIT 1;";        
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;          
-        res.json({"success": result});        
-    });                        
+    getAuth(req, res)     
 });
 
 app.post('/getEmployees', function(req, res) {            
-
-    let sql = "SELECT \
-        funcionarios.id,\
-        funcionarios.name AS name,\
-        funcionarios.name_comum AS name_comum,\
-        funcionarios.cpf AS cpf,\
-        funcionarios.ramal AS ramal,\
-        funcionarios.rg AS rg,\
-        funcionarios.telefone AS telefone,\
-        funcionarios.endereco AS endereco,\
-        funcionarios.bairro AS bairro,\
-        funcionarios.obs,\
-        funcionarios.foto_web,\
-        funcionarios.matricula AS matricula,\
-        funcionarios.status,\
-        crachas.id AS CRACHA_ID,\
-        crachas.id_tipo AS CRACHA_TIPO,\
-        crachas.id_cracha AS CRACHA,\
-        funcionarios_tipos.id AS id_tipo,\
-        funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
-        setores.name AS SETOR,\
-        setores.id AS SETOR_ID,\
-        funcao.name AS FUNCAO,\
-        funcao.id AS FUNCAO_ID,\
-        empresas.name AS EMPRESA,\
-        empresas.id AS EMPRESA_ID,\
-        cargos.id AS CARGO_ID,\
-        cargos.name AS CARGO \
-    FROM funcionarios \
-    LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
-    LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
-    LEFT JOIN  funcao ON funcao.id =  funcionarios.id_funcao \
-    LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
-    LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
-    LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
-    WHERE funcionarios.status = 1 \
-    ORDER BY funcionarios.name ASC \
-    LIMIT 0,20;";
-
-    log_(sql)
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+    getEmployee(req, res)                           
 });
 
 app.post('/getEmployeesByName', function(req, res) {            
-
-    let name = req.body.name
-
-    let sql = "SELECT \
-        funcionarios.id,\
-        funcionarios.name AS name,\
-        funcionarios.name_comum AS name_comum,\
-        funcionarios.cpf AS cpf,\
-        funcionarios.rg AS rg,\
-        funcionarios.telefone AS telefone,\
-        funcionarios.endereco AS endereco,\
-        funcionarios.bairro AS bairro,\
-        funcionarios.obs,\
-        funcionarios.foto_web,\
-        funcionarios.obs,\
-        funcionarios.matricula AS matricula,\
-        funcionarios.status,\
-        funcionarios.ramal,\
-        crachas.id_cracha AS CRACHA,\
-        crachas.id_tipo AS CRACHA_TIPO,\
-        funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
-        setores.name AS SETOR,\
-        setores.id AS SETOR_ID,\
-        funcao.name AS FUNCAO,\
-        funcao.id AS FUNCAO_ID,\
-        empresas.name AS EMPRESA,\
-        empresas.id AS EMPRESA_ID,\
-        cargos.id AS CARGO_ID,\
-        cargos.name AS CARGO \
-    FROM funcionarios \
-    LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
-    LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
-    LEFT JOIN  funcao ON funcao.id =  funcionarios.id_funcao \
-    LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
-    LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
-    LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
-    WHERE funcionarios.name LIKE '%" + name + "%';";
-
-    log_(sql)
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+    getEmployeeByName(req, res)                            
 });
 
 app.post('/getGuests', function(req, res) {
-    
-    let sql = "SELECT \
-        visitantes.id,\
-        visitantes.name AS name,\
-        visitantes.cpf AS cpf,\
-        visitantes.rg AS rg,\
-        visitantes.telefone AS telefone,\
-        visitantes.endereco AS endereco,\
-        visitantes.bairro AS bairro,\
-        visitantes.obs AS obs,\
-        visitantes.fotosamba,\
-        visitantes.status,\
-        crachas.id AS CRACHA_ID,\
-        crachas.id_tipo AS CRACHA_TIPO,\
-        crachas.id_cracha AS CRACHA,\
-        funcionarios.name AS AUTORIZANTE,\
-        funcionarios.id AS AUTORIZANTE_ID,\
-        visitantes_tipos.id AS id_tipo,\
-        visitantes_tipos.name AS TIPO,\
-        empresas.name AS EMPRESA,\
-        setores.name AS SETOR,\
-        setores.id AS SETOR_ID,\
-        empresas.name AS EMPRESA,\
-        empresas.id AS EMPRESA_ID,\
-        cargos.id AS CARGO_ID,\
-        cargos.name AS CARGO \
-    FROM visitantes \
-    LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
-    LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
-    LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
-    LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
-    LEFT JOIN  setores ON setores.id =  visitantes.id_setor \
-    LEFT JOIN  cargos ON cargos.id =  visitantes.id_cargo \
-    WHERE visitantes.name IS NOT NULL \
-    ORDER BY visitantes.name ASC \
-    LIMIT 0,20;";
-
-    log_(sql)    
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+    getGuest(req, res)                            
 });
 
-app.post('/getGuestsByName', function(req, res) {
-            
-    let name = req.body.name    
-    
-    let sql = "SELECT \
-        visitantes.id,\
-        visitantes.name AS name,\
-        visitantes.cpf AS cpf,\
-        visitantes.rg AS rg,\
-        visitantes.telefone AS telefone,\
-        visitantes.endereco AS endereco,\
-        visitantes.bairro AS bairro,\
-        visitantes.obs AS obs,\
-        visitantes.fotosamba,\
-        visitantes.status,\
-        crachas.id AS CRACHA_ID,\
-        crachas.id_tipo AS CRACHA_TIPO,\
-        crachas.id_cracha AS CRACHA,\
-        funcionarios.name AS AUTORIZANTE,\
-        funcionarios.id AS AUTORIZANTE_ID,\
-        visitantes_tipos.id AS id_tipo,\
-        visitantes_tipos.name AS TIPO,\
-        empresas.name AS EMPRESA,\
-        setores.name AS SETOR,\
-        setores.id AS SETOR_ID,\
-        empresas.name AS EMPRESA,\
-        empresas.id AS EMPRESA_ID,\
-        cargos.id AS CARGO_ID,\
-        cargos.name AS CARGO \
-    FROM visitantes \
-    LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
-    LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
-    LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
-    LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
-    LEFT JOIN  setores ON setores.id =  visitantes.id_setor \
-    LEFT JOIN  cargos ON cargos.id =  visitantes.id_cargo \
-    WHERE visitantes.name LIKE '%" + name + "%' AND visitantes.name IS NOT NULL;";
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+app.post('/getGuestsByName', function(req, res) {            
+    getGuestByName(req, res)              
 });
 
 app.post('/getAccessGroups', function(req, res) {                
-    
-    let sql = "SELECT acessos_controle_perfil.*,\
-            acessos_controle_tipo.name AS type,\
-            acessos_controle_tipo.id AS type_id,\
-            FALSE as checked \
-            FROM acessos_controle_perfil \
-        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type;";        
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+    getAccessGroups(req, res)                           
 });
 
-app.post('/getAccessGroupsByName', function(req, res) {
-            
-    let name = req.body.name
-    let idAccessGroupType = req.body.idAccessGroupType    
-    
-    let sql = "SELECT acessos_controle_perfil.*,\
-            acessos_controle_tipo.name AS type,\
-            FALSE as checked \
-            FROM acessos_controle_perfil \
-        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
-        WHERE acessos_controle_perfil.name LIKE '%" + name + "%' \
-        AND acessos_controle_tipo.id = " + idAccessGroupType + ";";
-
-    log_(sql)
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+app.post('/getAccessGroupsByName', function(req, res) {            
+    getAccessGroupsByName(req, res)          
 });
 
 app.post('/getAccessGroupsTypeById', function(req, res) {
@@ -1524,7 +1683,6 @@ app.post('/getOffices', function(req, res) {
 app.post('/getOfficeByName', function(req, res) {                
     
     let sql = "SELECT * FROM cargos WHERE name LIKE '%" + req.body.name + "%';";        
-
     log_(sql)
 
     con.query(sql, function (err1, result) {        
@@ -1534,10 +1692,9 @@ app.post('/getOfficeByName', function(req, res) {
 });
 
 app.post('/getAccessControlTypes', function(req, res) {
-            
-    log_('Verificando tipos de controle de acesso')
-    
-    let sql = "SELECT * FROM acessos_controle_tipo;";        
+                
+    let sql = "SELECT * FROM acessos_controle_tipo;"; 
+    log_(sql)       
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -1992,5 +2149,26 @@ app.post('/saveSector', function(req, res) {
 app.post('/delSector', function(req, res) {       
     delSector(req, res)
 });
+
+app.post('/addAccessPoint', function(req, res) {       
+    addAccessPoint(req, res)
+});
+
+app.post('/saveAccessPoint', function(req, res) {       
+    saveAccessPoint(req, res)
+});
+
+app.post('/delAccessPoint', function(req, res) {       
+    delAccessPoint(req, res)
+});
+
+app.post('/getBadges', function(req, res) {       
+    getBadges(req, res)
+});
+
+app.post('/getBadgesNumber', function(req, res) {       
+    getBadgesNumber(req, res)
+});
+
 
 http.listen(8085);
