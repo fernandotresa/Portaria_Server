@@ -57,7 +57,20 @@ function handleDisconnect() {
    });
 }
 
+function databasePing(){
+
+    let sql = "SELECT true FROM users;";        
+
+    setTimeout( () => {
+
+        con.query(sql, function (err1, result) {        
+            if (err1) throw err1;                  
+        });
+    }, 5000)        
+}
+
 handleDisconnect()
+databasePing()
 
 /*************************
  * LOGIN
@@ -114,6 +127,64 @@ function getAccessGroupsByName(req, res){
         if (err1) throw err1;                  
         res.json({"success": result});        
     });
+}
+
+function getAccessGroupsTypeById(req, res){
+
+    let idAccessGroupType = req.body.idAccessGroupType
+    
+    let sql = "SELECT acessos_controle_perfil.*,\
+            acessos_controle_tipo.name AS type,\
+            FALSE as checked \
+            FROM acessos_controle_perfil \
+        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
+        WHERE acessos_controle_tipo.id = " + idAccessGroupType + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });     
+}
+
+function getAccessGroupsTypes(req, res){
+
+    let idAccessGroupType = req.body.idAccessGroupType    
+    
+    let sql = "SELECT * \
+            FROM acessos_controle_tipo \
+        WHERE acessos_controle_tipo.id = " + idAccessGroupType + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });   
+}
+
+function getAccessGroupsBySector(req, res){
+
+    let name = req.body.name
+    let idAccessGroupType = req.body.idAccessGroupType    
+    
+    let sql = "SELECT acessos_controle_perfil.*,\
+            acessos_controle_tipo.name AS type,\
+            FALSE as checked \
+            FROM acessos_controle_perfil \
+        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
+        INNER JOIN funcionarios ON funcionarios.name = acessos_controle_perfil.name \
+        INNER JOIN setores ON setores.id = funcionarios.id_setor \
+        WHERE setores.name LIKE '%" + name + "%' \
+        AND acessos_controle_tipo.id = " + idAccessGroupType + ";";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });  
 }
 
 function createProfileExpire(req, res){
@@ -1530,63 +1601,16 @@ app.post('/getAccessGroupsByName', function(req, res) {
     getAccessGroupsByName(req, res)          
 });
 
-app.post('/getAccessGroupsTypeById', function(req, res) {
-            
-    let idAccessGroupType = req.body.idAccessGroupType
-    log_('Verificando Tipos Perfis de acesso por id: ' + idAccessGroupType)
-    
-    let sql = "SELECT acessos_controle_perfil.*,\
-            acessos_controle_tipo.name AS type,\
-            FALSE as checked \
-            FROM acessos_controle_perfil \
-        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
-        WHERE acessos_controle_tipo.id = " + idAccessGroupType + ";";
-
-    log_(sql)
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+app.post('/getAccessGroupsTypeById', function(req, res) {            
+    getAccessGroupsTypeById(req, res)            
 });
 
-app.post('/getAccessGroupsTypes', function(req, res) {
-            
-    let idAccessGroupType = req.body.idAccessGroupType    
-    
-    let sql = "SELECT * \
-            FROM acessos_controle_tipo \
-        WHERE acessos_controle_tipo.id = " + idAccessGroupType + ";";
-
-    log_(sql)
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+app.post('/getAccessGroupsTypes', function(req, res) {            
+    getAccessGroupsTypes(req, res)             
 });
 
-app.post('/getAccessGroupsBySector', function(req, res) {
-            
-    let name = req.body.name
-    let idAccessGroupType = req.body.idAccessGroupType    
-    
-    let sql = "SELECT acessos_controle_perfil.*,\
-            acessos_controle_tipo.name AS type,\
-            FALSE as checked \
-            FROM acessos_controle_perfil \
-        INNER JOIN acessos_controle_tipo ON acessos_controle_tipo.id = acessos_controle_perfil.id_type \
-        INNER JOIN funcionarios ON funcionarios.name = acessos_controle_perfil.name \
-        INNER JOIN setores ON setores.id = funcionarios.id_setor \
-        WHERE setores.name LIKE '%" + name + "%' \
-        AND acessos_controle_tipo.id = " + idAccessGroupType + ";";
-
-    log_(sql)
-
-    con.query(sql, function (err1, result) {        
-        if (err1) throw err1;                  
-        res.json({"success": result});        
-    });                        
+app.post('/getAccessGroupsBySector', function(req, res) {            
+    getAccessGroupsBySector(req, res)       
 });
 
 app.post('/getWorkFunctions', function(req, res) {                
@@ -1600,9 +1624,7 @@ app.post('/getWorkFunctions', function(req, res) {
 });
 
 app.post('/getEmployeeTypes', function(req, res) {
-            
-    log_('Verificando Tipos de funcionários')
-    
+                
     let sql = "SELECT * FROM funcionarios_tipos;";        
 
     con.query(sql, function (err1, result) {        
@@ -1612,9 +1634,7 @@ app.post('/getEmployeeTypes', function(req, res) {
 });
 
 app.post('/getGuestTypes', function(req, res) {
-            
-    log_('Verificando Tipos de visitantes')
-    
+                
     let sql = "SELECT * FROM visitantes_tipos;";        
 
     con.query(sql, function (err1, result) {        
