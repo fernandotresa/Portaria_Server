@@ -59,14 +59,13 @@ function handleDisconnect() {
 
 function databasePing(){
 
-    let sql = "SELECT true FROM users;";        
-
-    setTimeout( () => {
-
+    let sql = "SELECT true FROM users LIMIT 1;"; 
+    
+    setInterval( () => {
         con.query(sql, function (err1, result) {        
-            if (err1) throw err1;                  
+            if (err1) throw err1;                 
         });
-    }, 5000)        
+    }, 10000)        
 }
 
 handleDisconnect()
