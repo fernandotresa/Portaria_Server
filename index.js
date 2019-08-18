@@ -679,6 +679,35 @@ function verificaCracha(req, res){
     });            
 }
 
+function getBadgesTypes(req, res){
+    
+    let sql = "SELECT * FROM crachas_tipos;";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+        res.json({"success": result}); 
+    });            
+}
+
+
+function addBadges(req, res){
+    
+    let id_cracha = req.body.id_cracha
+    let id_tipo = req.body.id_tipo
+    let status = req.body.id_status
+
+    let sql = "INSERT INTO crachas (id_cracha, id_tipo, id_status) \
+            VALUES ('"+id_cracha+"', "+id_tipo+", "+status+")";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+        res.json({"success": result}); 
+    });            
+}
+
 /***********************
  * FUNCIONARIOS
  ***********************/
@@ -768,7 +797,54 @@ function getEmployeeByName(req, res){
     LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
     LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
     LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
-    WHERE funcionarios.name LIKE '%" + name + "%';";
+    WHERE funcionarios.name LIKE '%" + name + "%' AND funcionarios.status = 1;";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });
+}
+
+function getEmployeesByNameInactive(req, res){
+
+    let name = req.body.name
+
+    let sql = "SELECT \
+        funcionarios.id,\
+        funcionarios.name AS name,\
+        funcionarios.name_comum AS name_comum,\
+        funcionarios.cpf AS cpf,\
+        funcionarios.rg AS rg,\
+        funcionarios.telefone AS telefone,\
+        funcionarios.endereco AS endereco,\
+        funcionarios.bairro AS bairro,\
+        funcionarios.obs,\
+        funcionarios.foto_web,\
+        funcionarios.obs,\
+        funcionarios.matricula AS matricula,\
+        funcionarios.status,\
+        funcionarios.ramal,\
+        crachas.id_cracha AS CRACHA,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        funcionarios_tipos.name AS FUNCIONARIO_TIPO,\
+        setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
+        funcao.name AS FUNCAO,\
+        funcao.id AS FUNCAO_ID,\
+        empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
+        cargos.name AS CARGO \
+    FROM funcionarios \
+    LEFT JOIN  funcionarios_tipos ON funcionarios_tipos.id =  funcionarios.id_tipo \
+    LEFT JOIN  setores ON setores.id =  funcionarios.id_setor \
+    LEFT JOIN  funcao ON funcao.id =  funcionarios.id_funcao \
+    LEFT JOIN  empresas ON empresas.id =  funcionarios.id_empresa \
+    LEFT JOIN  cargos ON cargos.id =  funcionarios.id_cargo \
+    LEFT JOIN  crachas ON crachas.id =  funcionarios.id_cracha \
+    WHERE funcionarios.name LIKE '%" + name + "%' AND funcionarios.status = 0;";
 
     log_(sql)
 
@@ -971,7 +1047,54 @@ function editEmployee(req, res){
     LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
     LEFT JOIN  setores ON setores.id =  visitantes.id_setor \
     LEFT JOIN  cargos ON cargos.id =  visitantes.id_cargo \
-    WHERE visitantes.name LIKE '%" + name + "%' AND visitantes.name IS NOT NULL;";
+    WHERE visitantes.name LIKE '%" + name + "%' \
+    AND visitantes.name IS NOT NULL \
+    AND visitantes.status = 1;";
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });  
+ }
+
+ function getGuestsByNameInactive(req, res){
+    let name = req.body.name    
+    
+    let sql = "SELECT \
+        visitantes.id,\
+        visitantes.name AS name,\
+        visitantes.cpf AS cpf,\
+        visitantes.rg AS rg,\
+        visitantes.telefone AS telefone,\
+        visitantes.endereco AS endereco,\
+        visitantes.bairro AS bairro,\
+        visitantes.obs AS obs,\
+        visitantes.fotosamba,\
+        visitantes.status,\
+        crachas.id AS CRACHA_ID,\
+        crachas.id_tipo AS CRACHA_TIPO,\
+        crachas.id_cracha AS CRACHA,\
+        funcionarios.name AS AUTORIZANTE,\
+        funcionarios.id AS AUTORIZANTE_ID,\
+        visitantes_tipos.id AS id_tipo,\
+        visitantes_tipos.name AS TIPO,\
+        empresas.name AS EMPRESA,\
+        setores.name AS SETOR,\
+        setores.id AS SETOR_ID,\
+        empresas.name AS EMPRESA,\
+        empresas.id AS EMPRESA_ID,\
+        cargos.id AS CARGO_ID,\
+        cargos.name AS CARGO \
+    FROM visitantes \
+    LEFT JOIN  visitantes_tipos ON visitantes_tipos.id =  visitantes.id_tipo \
+    LEFT JOIN  funcionarios ON funcionarios.id =  visitantes.id_autorizado_por \
+    LEFT JOIN  crachas ON crachas.id =  visitantes.id_cracha \
+    LEFT JOIN  empresas ON empresas.id =  visitantes.id_empresa \
+    LEFT JOIN  setores ON setores.id =  visitantes.id_setor \
+    LEFT JOIN  cargos ON cargos.id =  visitantes.id_cargo \
+    WHERE visitantes.name LIKE '%" + name + "%' \
+    AND visitantes.name IS NOT NULL \
+    AND visitantes.status = 0;";
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -1235,7 +1358,7 @@ function saveCompany(req, res){
 
 function delCompany(req, res){
 
-    let id = req.body.id
+    let id = req.body.info.id
        
     let sql =  "UPDATE empresas SET status = 0 WHERE id = "+id+";";
     log_(sql)
@@ -1283,7 +1406,7 @@ function saveOffice(req, res){
 
 function delOffice(req, res){
 
-    let id = req.body.id
+    let id = req.body.info.id
        
     let sql =  "UPDATE cargos SET status = 0 WHERE id = "+id+";";
     log_(sql)
@@ -1448,13 +1571,12 @@ function addAccessPoint(req, res){
 
     let name = req.body.name
     let status = req.body.status
-    let status_ = status === 'Ativo'
     let apType = req.body.apType
     let apCu = req.body.apCu
     let ipAddress = req.body.ipAddress
     
     let sql = "INSERT INTO pontos (name, status, id_tipo, ip, codigo) \
-            VALUES ('"+name+"', "+status_+", '"+apType+"', "+ipAddress+"', "+apCu+")";
+            VALUES ('"+name+"', "+status+", "+apType+", '"+ipAddress+"', "+apCu+")";
 
     log_(sql)
 
@@ -1482,11 +1604,13 @@ function addCameraPonto(req, res){
     let name = req.body.name
     let ipCameras = req.body.ipCameras
 
+    console.log(req.body)
+
     ipCameras.forEach(element => {
     
         let sql = "INSERT INTO cameras_pontos (id_ponto, id_camera) \
             VALUES (\
-                (SELECT pontos.id FROM pontos WHERE pontos.name = '"+name+"' LIMIT 1)\
+                (SELECT pontos.id FROM pontos WHERE pontos.name = '"+name+"' LIMIT 1),\
                 (SELECT cameras.id FROM cameras WHERE cameras.name = '"+element+"' LIMIT 1))";
 
         log_(sql)
@@ -1497,6 +1621,31 @@ function addCameraPonto(req, res){
     }); 
     
     res.json({"success": 1}); 
+}
+
+function getCameraPonto(req, res){
+    let id = req.body.id
+
+    let sql = "SELECT * FROM cameras_pontos \
+            INNER JOIN cameras ON cameras.id = cameras_pontos.id_camera \
+            WHERE id_ponto = "+id+";"
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function getCameras(req, res){    
+    let sql = "SELECT * FROM cameras;"
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
 }
 
 function saveAccessPoint(req, res){
@@ -1584,12 +1733,20 @@ app.post('/getEmployeesByName', function(req, res) {
     getEmployeeByName(req, res)                            
 });
 
+app.post('/getEmployeesByNameInactive', function(req, res) {            
+    getEmployeesByNameInactive(req, res)                            
+});
+
 app.post('/getGuests', function(req, res) {
     getGuest(req, res)                            
 });
 
 app.post('/getGuestsByName', function(req, res) {            
     getGuestByName(req, res)              
+});
+
+app.post('/getGuestsByNameInactive', function(req, res) {            
+    getGuestsByNameInactive(req, res)              
 });
 
 app.post('/getAccessGroups', function(req, res) {                
@@ -1646,7 +1803,7 @@ app.post('/getSectors', function(req, res) {
             
     log_('Verificando Setores')
     
-    let sql = "SELECT setores.*, false AS checked FROM setores;";        
+    let sql = "SELECT setores.*, false AS checked FROM setores  WHERE status = 1;;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -1656,7 +1813,7 @@ app.post('/getSectors', function(req, res) {
 
 app.post('/getSectorsByName', function(req, res) {                
     
-    let sql = "SELECT * FROM setores WHERE name LIKE '%" + req.body.name + "%';";        
+    let sql = "SELECT * FROM setores WHERE name LIKE '%" + req.body.name + "%'  AND status = 1; ";        
     log_(sql)
 
     con.query(sql, function (err1, result) {        
@@ -1667,7 +1824,7 @@ app.post('/getSectorsByName', function(req, res) {
 
 app.post('/getCompanies', function(req, res) {                
     
-    let sql = "SELECT * FROM empresas;";        
+    let sql = "SELECT * FROM empresas WHERE status = 1;";        
     log_(sql)
 
     con.query(sql, function (err1, result) {        
@@ -1678,7 +1835,7 @@ app.post('/getCompanies', function(req, res) {
 
 app.post('/getCompaniesByName', function(req, res) {                
     
-    let sql = "SELECT * FROM empresas WHERE name LIKE '%" + req.body.name + "%';";        
+    let sql = "SELECT * FROM empresas WHERE name LIKE '%" + req.body.name + "%' AND status = 1;";        
     log_(sql)
 
     con.query(sql, function (err1, result) {        
@@ -1691,7 +1848,7 @@ app.post('/getOffices', function(req, res) {
             
     log_('Verificando Cargos')
     
-    let sql = "SELECT * FROM cargos;";        
+    let sql = "SELECT * FROM cargos WHERE status = 1;";        
 
     con.query(sql, function (err1, result) {        
         if (err1) throw err1;                  
@@ -1701,7 +1858,7 @@ app.post('/getOffices', function(req, res) {
 
 app.post('/getOfficeByName', function(req, res) {                
     
-    let sql = "SELECT * FROM cargos WHERE name LIKE '%" + req.body.name + "%';";        
+    let sql = "SELECT * FROM cargos WHERE name LIKE '%" + req.body.name + "%' AND status = 1;";        
     log_(sql)
 
     con.query(sql, function (err1, result) {        
@@ -2188,6 +2345,23 @@ app.post('/getBadges', function(req, res) {
 app.post('/getBadgesNumber', function(req, res) {       
     getBadgesNumber(req, res)
 });
+
+app.post('/getCameraPonto', function(req, res) {       
+    getCameraPonto(req, res)
+});
+
+app.post('/getCameras', function(req, res) {       
+    getCameras(req, res)
+});
+
+app.post('/getBadgesTypes', function(req, res) {       
+    getBadgesTypes(req, res)
+});
+
+app.post('/addBadges', function(req, res) {       
+    addBadges(req, res)
+});
+
 
 
 http.listen(8085);
