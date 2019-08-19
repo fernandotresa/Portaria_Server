@@ -669,7 +669,7 @@ function activeUser(req, res){
 
 function verificaCracha(req, res){
     let cracha = req.body.cracha
-    let sql = "SELECT * FROM crachas WHERE id_cracha = '" + cracha + "';";
+    let sql = "SELECT * FROM crachas WHERE id_cracha = '" + cracha + " AND id_status = 1';";
 
     log_(sql)
 
@@ -690,20 +690,52 @@ function getBadgesTypes(req, res){
     });            
 }
 
-
-function addBadges(req, res){
-    
-    let id_cracha = req.body.id_cracha
-    let id_tipo = req.body.id_tipo
-    let status = req.body.id_status
+function addBadges(req, res){    
+    let id_cracha = req.body.idCracha
+    let id_tipo = req.body.idTipo
+    let status = req.body.status
 
     let sql = "INSERT INTO crachas (id_cracha, id_tipo, id_status) \
-            VALUES ('"+id_cracha+"', "+id_tipo+", "+status+")";
+            VALUES ('"+id_cracha+"', (SELECT crachas_tipos.id FROM crachas_tipos WHERE crachas_tipos.name = '"+id_tipo+"'), "+status+")";
 
     log_(sql)
 
     con.query(sql, function (err, result) {        
         if (err) throw err;             
+        res.json({"success": result}); 
+    });            
+}
+
+function saveBadge(req, res){
+
+    let id = req.body.id
+    let id_cracha = req.body.idCracha
+    let id_tipo = req.body.idTipo
+    let status = req.body.status
+
+    let sql = "UPDATE crachas SET \
+                id_cracha = '"+id_cracha+"',\
+                id_status = "+status+",\
+                id_tipo = (SELECT crachas_tipos.id FROM crachas_tipos WHERE crachas_tipos.name = '"+id_tipo+"') \
+                WHERE id = "+id+";"
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;             
+        res.json({"success": result}); 
+    });
+}
+
+function delBadge(req, res){
+
+    let id = req.body.info.id
+    let sql = "UPDATE crachas SET id_status = 0 WHERE id = "+id+";"
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;          
         res.json({"success": result}); 
     });            
 }
@@ -1529,8 +1561,6 @@ function removeAccessPointsEmployee(req, res){
 }
 
 function addAccessPointsEmployee(req, res){
-
-    console.log(req.body)
     let accessPoints = req.body.accessPoints
     let badge = req.body.badge
 
@@ -1586,6 +1616,49 @@ function addAccessPoint(req, res){
     });    
 }
 
+function saveAccessPoint(req, res){
+
+    let id = req.body.id
+    let name = req.body.name
+    let status = req.body.status
+    let status_ = status === 'Ativo'
+    let apType = req.body.apType
+    let apCu = req.body.apCu
+    let ipAddress = req.body.ipAddress
+    
+    let sql =   "UPDATE pontos SET \
+            name = '"+name+"',\
+            status = "+status_+",\
+            id_tipo = "+apType+"\
+            ip = '"+ipAddress+"',\
+            codigo = "+apCu+" \
+            WHERE id = "+id+"";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        removeCameraPonto(req, res)
+    });    
+}
+
+function delAccessPoint(req, res){
+
+    let id = req.body.id
+       
+    let sql =  "UPDATE setores SET status = 0 WHERE id = "+id+";";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+/***********************
+ * CAMERAS
+ ***********************/
+
 function removeCameraPonto(req, res){
     let name = req.body.name
 
@@ -1603,8 +1676,6 @@ function removeCameraPonto(req, res){
 function addCameraPonto(req, res){
     let name = req.body.name
     let ipCameras = req.body.ipCameras
-
-    console.log(req.body)
 
     ipCameras.forEach(element => {
     
@@ -1639,7 +1710,7 @@ function getCameraPonto(req, res){
 }
 
 function getCameras(req, res){    
-    let sql = "SELECT * FROM cameras;"
+    let sql = "SELECT * FROM cameras WHERE status = 1;"
     log_(sql)
 
     con.query(sql, function (err, result) {        
@@ -1648,39 +1719,70 @@ function getCameras(req, res){
     });    
 }
 
-function saveAccessPoint(req, res){
+function getCamerasByName(req, res){    
 
-    let id = req.body.id
     let name = req.body.name
-    let status = req.body.status
-    let status_ = status === 'Ativo'
-    let apType = req.body.apType
-    let apCu = req.body.apCu
-    let ipAddress = req.body.ipAddress
-    //let ipCameras = req.body.ipCameras
+    let sql = "SELECT * FROM cameras WHERE status = 1 AND name LIKE '%"+name+"%';"
+    log_(sql)
 
-    
-    let sql =   "UPDATE pontos SET \
-            name = '"+name+"',\
-            status = "+status_+",\
-            id_tipo = "+apType+"\
-            ip = '"+ipAddress+"',\
-            codigo = "+apCu+" \
-            WHERE id = "+id+"";
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function addCamera(req, res){    
+
+    let name = req.body.name
+    let ipAddress = req.body.ip
+    let channel = req.body.channel
+    let status = req.body.status
+    let type = req.body.type
+    let url = req.body.url
+
+    let sql = "INSERT INTO cameras (name, endereco_ip, canal, status, tipo, url) \
+            VALUES ('"+ name +"', '" + ipAddress + "', "+channel+", "+status+", "+type+", '"+url+"');";
 
     log_(sql)
 
     con.query(sql, function (err, result) {        
         if (err) throw err;  
-        removeCameraPonto(req, res)
+        res.json({"success": result}); 
     });    
 }
 
-function delAccessPoint(req, res){
+function saveCamera(req, res){    
 
     let id = req.body.id
+    let name = req.body.name
+    let ipAddress = req.body.ip
+    let channel = req.body.channel
+    let status = req.body.status
+    let type = req.body.type
+    let url = req.body.url
+
+    let sql = "UPDATE cameras SET \
+            name = '"+name+"',\
+            endereco_ip = '"+ipAddress+"',\
+            canal = "+channel+",\
+            status = "+status+",\
+            tipo = "+type+",\
+            url = '"+url+"' \
+        WHERE id = "+id+";";
+
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+function delCamera(req, res){
+
+    let id = req.body.info.id
        
-    let sql =  "UPDATE setores SET status = 0 WHERE id = "+id+";";
+    let sql =  "UPDATE cameras SET status = 0 WHERE id = "+id+";";
     log_(sql)
 
     con.query(sql, function (err, result) {        
@@ -1708,7 +1810,7 @@ function getBadgesNumber(req, res){
 
     let id = req.body.id
     
-    let sql = "SELECT * FROM crachas WHERE id_cracha = "+id+";";
+    let sql = "SELECT * FROM crachas WHERE id_cracha = "+id+" AND id_status = 1;";
     log_(sql)
 
     con.query(sql, function (err, result) {        
@@ -2354,6 +2456,10 @@ app.post('/getCameras', function(req, res) {
     getCameras(req, res)
 });
 
+app.post('/getCamerasByName', function(req, res) {       
+    getCamerasByName(req, res)
+});
+
 app.post('/getBadgesTypes', function(req, res) {       
     getBadgesTypes(req, res)
 });
@@ -2362,6 +2468,24 @@ app.post('/addBadges', function(req, res) {
     addBadges(req, res)
 });
 
+app.post('/saveBadge', function(req, res) {       
+    saveBadge(req, res)
+});
 
+app.post('/delBadge', function(req, res) {       
+    delBadge(req, res)
+});
+
+app.post('/addCamera', function(req, res) {       
+    addCamera(req, res)
+});
+
+app.post('/saveCamera', function(req, res) {       
+    saveCamera(req, res)
+});
+
+app.post('/delCamera', function(req, res) {       
+    delCamera(req, res)
+});
 
 http.listen(8085);
