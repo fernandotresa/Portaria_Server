@@ -1528,6 +1528,23 @@ function getAccessPointsEmployee(req, res){
 
     let id = req.body.id
 
+    let sql = "SELECT * FROM acessos_funcionarios \
+            INNER JOIN pontos ON pontos.id = acessos_funcionarios.id_ponto \
+            WHERE acessos_funcionarios.id_funcionario = " + id + " \
+            ORDER BY acessos_funcionarios.datahora DESC LIMIT 1;";
+
+    log_(sql)    
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;                  
+        res.json({"success": result});        
+    });
+}
+
+function getLastAccessEmployee(req, res){
+
+    let id = req.body.id
+
     let sql = "SELECT \
             pontos.* \
             FROM acessos_permitidos \
@@ -2386,6 +2403,10 @@ app.post('/getAccessPointsByName', function(req, res) {
 
 app.post('/getAccessPointsEmployee', function(req, res) {        
     getAccessPointsEmployee(req, res)                                
+});
+
+app.post('/getLastAccessEmployee', function(req, res) {        
+    getLastAccessEmployee(req, res)                                
 });
 
 app.post('/addAccessPointsEmployee', function(req, res) {       
