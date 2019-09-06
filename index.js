@@ -1836,6 +1836,68 @@ function getBadgesNumber(req, res){
     });    
 }
 
+/***************************
+ * API
+ *********************/ 
+
+function getAPICommands(req, res){
+    
+    let id = req.body.id
+
+    let sql = "SELECT * FROM comando_sistema WHERE id_ponto = " + id + " AND status = 1;";
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+}
+
+/**
+ * RECEPTOR
+ */
+
+function getAllReceptors(req, res){
+
+    let sql = "SELECT * FROM pontos;";
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;           
+        res.json({"success": result}); 
+    });
+}
+
+function systemCommand(req, res){
+
+    console.log(req.body)
+
+    let cmd = req.body.cmd
+    let idUser = req.body.idUser
+    let ipPonto = req.body.ipPonto
+
+    let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto) \
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "');";
+
+    log_(sql)
+
+    con.query(sql, function (err1, result) {        
+        if (err1) throw err1;           
+        res.json({"success": result}); 
+    });
+}
+
+async function systemCommandLocal(req, res) {
+    console.log("Executando comando...")
+    
+    const { stdout, stderr } = await exec('xdotool key ctrl+Tab');
+    console.log('stdout:', stdout);
+    console.log('stderr:', stderr);
+
+    res.json({"success": stdout}); 
+}
+
+
 /*************************
  * APP POSTS
  ********************************/
@@ -2508,5 +2570,22 @@ app.post('/saveCamera', function(req, res) {
 app.post('/delCamera', function(req, res) {       
     delCamera(req, res)
 });
+
+app.post('/getAPICommands', function(req, res) {       
+    getAPICommands(req, res)
+});
+
+/**
+ * COMANDOS RECEPTOR
+ */
+
+app.post('/getAllReceptors', function(req, res) {    
+    getAllReceptors(req, res)    
+})
+
+app.post('/systemCommand', function(req, res) {    
+    systemCommand(req, res)    
+})
+
 
 http.listen(8085);
