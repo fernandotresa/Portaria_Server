@@ -1907,11 +1907,11 @@ function runQuery(req, res){
             if (err)
                 reject(res.json({"success": false}));                                            
             else
-                resolve(res.json({"success": result}));                                            
+                resolve(res.json({"success": result, callback: req.body.cmd}));                                            
                     
         });                 
     })    
-    
+
 }
 
 async function systemCommandLocal(req, res) {
