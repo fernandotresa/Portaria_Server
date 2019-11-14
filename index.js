@@ -31,6 +31,15 @@ var db_config = {
     timezone: 'utc'  
 };
 
+/*var db_config = {^M
+    host: "10.0.2.239",^M
+    user: "root",^M
+    password: "Mudaragora00",^M
+    database: "zoologico,^M
+    timezone: 'utc'  ^M
+};*/
+
+
 let con;
 
 function handleDisconnect() {
@@ -1853,6 +1862,7 @@ function getAPICommands(req, res){
     });    
 }
 
+
 /**
  * RECEPTOR
  */
@@ -1885,6 +1895,18 @@ function systemCommand(req, res){
         if (err1) throw err1;           
         res.json({"success": result}); 
     });
+}
+
+function runQuery(){
+
+    let sql = req.body.sql
+    log_(sql)
+
+    con.query(sql, function (err, result) {        
+        if (err) throw err;  
+        res.json({"success": result}); 
+    });    
+
 }
 
 async function systemCommandLocal(req, res) {
@@ -2586,6 +2608,16 @@ app.post('/getAllReceptors', function(req, res) {
 app.post('/systemCommand', function(req, res) {    
     systemCommand(req, res)    
 })
+
+/**
+ * RODA QUERIES
+ */
+
+app.post('/runQuery', function(req, res) {    
+    runQuery(req, res)    
+})
+
+
 
 
 http.listen(8085);
