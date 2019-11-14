@@ -1904,27 +1904,14 @@ function runQuery(req, res){
     return new Promise(function(resolve, reject) {
 
         con.query(sql, function (err, result) {        
-            if (err){
-                console.log(err)
-                reject(res.json({"success": false}));                                
-            }
-
-            else {
-                console.log("Inicio consulta: ", moment().format("hh:mm:ss"))
-                console.log(result)
-                console.log("Fim consulta: ", moment().format("hh:mm:ss"))
-
-                resolve(res.json({"success": result}));                                
-            }
+            if (err)
+                reject(res.json({"success": false}));                                            
+            else
+                resolve(res.json({"success": result}));                                            
                     
-        }); 
-        
-        
-
-    })
-
+        });                 
+    })    
     
-
 }
 
 async function systemCommandLocal(req, res) {
