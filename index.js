@@ -1926,7 +1926,7 @@ function runQueryContinue(results, cmd){
     
     const idUser = 1
     const ipPonto = 1
-    var rows = JSON.parse(JSON.stringify(results[0]));
+    var rows = JSON.stringify(results[0]);
 
     let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query) \
         VALUES (" + cmd + "," + idUser + ",'" + ipPonto + ",'" + rows + "');";
