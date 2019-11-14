@@ -1904,12 +1904,13 @@ function runQuery(req, res){
     con.query(sql, function (err, result) {        
         if (err) throw err;  
 
-        console.log(moment().format("hh:mm:ss"))
+        console.log("Inicio consulta: ", moment().format("hh:mm:ss"))
         console.log(result)
+        console.log("Fim consulta: ", moment().format("hh:mm:ss"))
 
     }); 
     
-    res.json({"success": result}); 
+    res.json({"success": true}); 
 
 }
 
