@@ -1913,14 +1913,42 @@ function runQuery(req, res){
 
         con.query(sql, function (err, result) {        
             if (err)
-                reject(res.json({"success": false}));                                            
+                reject(err);                                            
             else
-                resolve(res.json({"success": result, callback: req.body.cmd}));                                            
+                resolve(runQueryContinue(result, req.body.cmd));
                     
         });                 
     })    
 
 }
+
+function runQueryContinue(results, cmd){
+    
+    const idUser = 1
+    const ipPonto = 1
+    var rows = JSON.parse(JSON.stringify(results[0]));
+
+    console.log("### ", cmd)
+    console.log(rows)
+
+    let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query) \
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + ",'" + rows + "');";
+
+    log_(sql)
+
+    return new Promise(function(resolve, reject) {
+
+        con.query(sql, function (err, result) {        
+            if (err)
+                reject(err);                                            
+            else
+                resolve("Consulta realizada com sucesso!");                                            
+                    
+        });                 
+    })    
+
+}
+
 
 async function systemCommandLocal(req, res) {
     console.log("Executando comando...")
