@@ -1901,16 +1901,29 @@ function runQuery(req, res){
     let sql = req.body.sql
     log_(sql)
 
-    con.query(sql, function (err, result) {        
-        if (err) throw err;  
+    return new Promise(function(resolve, reject) {
 
-        console.log("Inicio consulta: ", moment().format("hh:mm:ss"))
-        console.log(result)
-        console.log("Fim consulta: ", moment().format("hh:mm:ss"))
+        con.query(sql, function (err, result) {        
+            if (err){
+                console.log(err)
+                reject(res.json({"success": false}));                                
+            }
 
-    }); 
+            else {
+                console.log("Inicio consulta: ", moment().format("hh:mm:ss"))
+                console.log(result)
+                console.log("Fim consulta: ", moment().format("hh:mm:ss"))
+
+                resolve(res.json({"success": result}));                                
+            }
+                    
+        }); 
+        
+        
+
+    })
+
     
-    res.json({"success": true}); 
 
 }
 
