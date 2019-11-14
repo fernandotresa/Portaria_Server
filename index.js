@@ -31,21 +31,21 @@ function log_(str){
     timezone: 'utc'  
 };*/
 
-/*var db_config = {
+var db_config = {
     host: "10.0.2.239",
     user: "root",
     password: "Mudaragora00",
     database: "zoologico",
     timezone: 'utc'  
-};*/
+};
 
-var db_config = {
+/*var db_config = {
     host: "10.19.0.3",
     user: "root",
     password: "Mudaragora00",
     database: "zoologico",
     timezone: 'utc'  
-};
+};*/
 
 let con;
 
@@ -1927,9 +1927,6 @@ function runQueryContinue(results, cmd){
     const idUser = 1
     const ipPonto = 1
     var rows = JSON.parse(JSON.stringify(results[0]));
-
-    console.log("### ", cmd)
-    console.log(rows)
 
     let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query) \
         VALUES (" + cmd + "," + idUser + ",'" + ipPonto + ",'" + rows + "');";
