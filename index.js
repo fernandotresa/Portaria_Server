@@ -31,8 +31,16 @@ function log_(str){
     timezone: 'utc'  
 };*/
 
-var db_config = {
+/*var db_config = {
     host: "10.0.2.239",
+    user: "root",
+    password: "Mudaragora00",
+    database: "zoologico",
+    timezone: 'utc'  
+};*/
+
+var db_config = {
+    host: "10.19.0.3",
     user: "root",
     password: "Mudaragora00",
     database: "zoologico",
