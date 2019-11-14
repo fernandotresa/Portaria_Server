@@ -1903,8 +1903,13 @@ function runQuery(req, res){
 
     con.query(sql, function (err, result) {        
         if (err) throw err;  
-        res.json({"success": result}); 
-    });    
+
+        console.log(moment().format("hh:mm:ss"))
+        console.log(result)
+
+    }); 
+    
+    res.json({"success": result}); 
 
 }
 
