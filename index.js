@@ -1896,7 +1896,7 @@ function systemCommand(req, res){
     });
 }
 
-function runQuery(){
+function runQuery(req, res){
 
     let sql = req.body.sql
     log_(sql)
