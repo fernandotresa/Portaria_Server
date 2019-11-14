@@ -23,22 +23,21 @@ function log_(str){
  * BANCO DE DADOS
  ****************************/
 
-var db_config = {
+/*var db_config = {
     host: "rds001.cacasorqzf2r.sa-east-1.rds.amazonaws.com",
     user: "portaria",
     password: "c4d3Oc0ntr4t0",
     database: "portaria",
     timezone: 'utc'  
-};
-
-/*var db_config = {^M
-    host: "10.0.2.239",^M
-    user: "root",^M
-    password: "Mudaragora00",^M
-    database: "zoologico,^M
-    timezone: 'utc'  ^M
 };*/
 
+var db_config = {
+    host: "10.0.2.239",
+    user: "root",
+    password: "Mudaragora00",
+    database: "zoologico",
+    timezone: 'utc'  
+};
 
 let con;
 
