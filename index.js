@@ -1918,20 +1918,18 @@ function runQuery(req, res){
             }
                 
             else
-                resolve(runQueryContinue(result, req.body.cmd));
+                resolve(runQueryContinue(result, req.body));
                     
         });                 
     })    
 
 }
 
-function runQueryContinue(results, cmd){
+function runQueryContinue(results, body){
     
-    const idUser = 1
-    const ipPonto = 1
-    var rows = JSON.stringify(results[0]);
-
-    console.log(rows)
+    const idUser = body.idUser
+    const ipPonto = body.idPonto
+    var rows = JSON.stringify(results[0]);    
 
     let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query) \
         VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + rows + "');";
@@ -1953,12 +1951,6 @@ function runQueryContinue(results, cmd){
     })    
 
 }
-
-function esc_quot(text)
-{
-    return text.replace("\"", "\\\"");
-}
-
 
 async function systemCommandLocal(req, res) {
     console.log("Executando comando...")
