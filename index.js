@@ -1926,7 +1926,7 @@ function runQueryContinue(results, cmd){
     
     const idUser = 1
     const ipPonto = 1
-    var rows = JSON.parse(JSON.stringify(results[0]));
+    var rows = JSON.stringify(results[0]);
 
     console.log(rows)
 
@@ -2659,7 +2659,7 @@ app.post('/systemCommand', function(req, res) {
  */
 
 app.post('/runQuery', function(req, res) {    
-    
+
     runQuery(req, res)    
     .then(data => {
         res.json({"success": data});
