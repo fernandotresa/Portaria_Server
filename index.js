@@ -1927,9 +1927,10 @@ function runQueryContinue(results, cmd){
     const idUser = 1
     const ipPonto = 1
     var rows = JSON.stringify(results[0]);
+    var rowsparse = esc_quot(rows)
 
     let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query) \
-        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + ",'" + rows + "');";
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + ",'" + rowsparse + "');";
 
     log_(sql)
 
@@ -1944,6 +1945,11 @@ function runQueryContinue(results, cmd){
         });                 
     })    
 
+}
+
+function esc_quot(text)
+{
+    return text.replace("\"", "\\\"");
 }
 
 
