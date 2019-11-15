@@ -1912,8 +1912,11 @@ function runQuery(req, res){
     return new Promise(function(resolve, reject) {
 
         con.query(sql, function (err, result) {        
-            if (err)
-                reject(err);                                            
+            if (err){
+                console.log(err)
+                reject(err); 
+            }
+                
             else
                 resolve(runQueryContinue(result, req.body.cmd));
                     
@@ -1938,8 +1941,11 @@ function runQueryContinue(results, cmd){
     return new Promise(function(resolve, reject) {
 
         con.query(sql, function (err, result) {        
-            if (err)
-                reject(err);                                            
+            if (err){
+                console.log(err)
+                reject(err);   
+            }
+                                                         
             else
                 resolve("Consulta realizada com sucesso!");                                            
                     
