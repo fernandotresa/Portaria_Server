@@ -1927,6 +1927,7 @@ function runQuery(req, res){
 
 function runQueryContinue(results, body){
     
+    const cmd = body.cmd
     const idUser = body.idUser
     const ipPonto = body.idPonto
     var rows = JSON.stringify(results);    
