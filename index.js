@@ -1927,9 +1927,12 @@ function runQueryContinue(results, cmd){
     const idUser = 1
     const ipPonto = 1
     var rows = JSON.stringify(results[0]);
+    var rowsparse = esc_quot(rows)
+
+    console.log(rowsparse)
 
     let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query) \
-        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "',  JSON_OBJECT(" + rows + "));";
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + ",'" + rowsparse + "');";
 
     log_(sql)
 
@@ -1945,6 +1948,19 @@ function runQueryContinue(results, cmd){
     })    
 
 }
+
+function esc_quot(text)
+{
+    return text.replace(/\\n/g, "\\n")
+                .replace(/\\'/g, "\\'")
+                .replace(/\\"/g, '\\"')
+                .replace(/\\&/g, "\\&")
+                .replace(/\\r/g, "\\r")
+                .replace(/\\t/g, "\\t")
+                .replace(/\\b/g, "\\b")
+                .replace(/\\f/g, "\\f");
+}
+
 
 async function systemCommandLocal(req, res) {
     console.log("Executando comando...")
