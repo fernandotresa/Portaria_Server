@@ -1929,7 +1929,7 @@ function runQueryContinue(results, cmd){
     var rows = JSON.stringify(results[0]);
 
     let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query) \
-        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + ", JSON_OBJECT(" + rows + "));";
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "',  JSON_OBJECT(" + rows + "));";
 
     log_(sql)
 
