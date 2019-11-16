@@ -1957,7 +1957,7 @@ function runQueryContinue(results, body){
 function runQueryFinish(datetime){
     
 
-    let sql = "UPDATE comando_sistema SET status = 1, datetime_exec = '" + moment().format() + " WHERE datetime = '" + datetime + "' LIMIT 1;";
+    let sql = "UPDATE comando_sistema SET status = 1, datetime_exec = '" + moment().format() + "' WHERE datetime = '" + datetime + "' LIMIT 1;";
 
     log_(sql)
 
