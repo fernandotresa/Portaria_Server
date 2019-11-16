@@ -1930,7 +1930,7 @@ function runQueryContinue(results, body){
     const cmd = body.cmd
     const idUser = body.idUser
     const ipPonto = body.ipPonto
-    var rows = JSON.parse(results);    
+    var rows = JSON.parse(JSON.stringify(results));
 
     let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query) \
         VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + rows + "');";
