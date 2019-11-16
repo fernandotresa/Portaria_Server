@@ -1930,10 +1930,34 @@ function runQueryContinue(results, body){
     const cmd = body.cmd
     const idUser = body.idUser
     const ipPonto = body.ipPonto
-    var rows = JSON.stringify(results);
 
-    let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query) \
-        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + rows + "');";
+    var rows = JSON.stringify(results);
+    var datetime = moment().format()
+
+    let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query, datetime) \
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + rows + "', '" + datetime + "');";
+
+    log_(sql)
+
+    return new Promise(function(resolve, reject) {
+
+        con.query(sql, function (err, result) {        
+            if (err){
+                console.log(err)
+                reject(err);   
+            }
+                                                         
+            else
+                resolve(runQueryFinish(datetime));
+                    
+        });                 
+    })    
+}
+
+function runQueryFinish(datetime){
+    
+
+    let sql = "UPDATE comando_sistema SET status = 1 WHERE datetime = '" + datetime + ";";
 
     log_(sql)
 
@@ -1950,7 +1974,6 @@ function runQueryContinue(results, body){
                     
         });                 
     })    
-
 }
 
 async function systemCommandLocal(req, res) {
