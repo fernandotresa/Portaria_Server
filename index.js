@@ -1979,7 +1979,12 @@ function runQueryFinish(datetime){
 
 function runQueryMultiple(req, res){
 
-    let sql = req.body.sql        
+    let sql = req.body.sql     
+
+    console.log(typeof(sql))
+    console.log(sql)   
+
+    
 
     var allQueries = [];
 
