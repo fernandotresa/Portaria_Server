@@ -1907,13 +1907,16 @@ function systemCommand(req, res){
 function runQuery(req, res){
 
     let sql = req.body.sql
-    log_(sql)
+    let sqlparse = sql.replace(/\\\//g, "/");
+
+    log_(sqlparse)
 
     return new Promise(function(resolve, reject) {
 
-        con.query(sql, function (err, result) {        
+        con.query(sqlparse, function (err, result) {        
             if (err){
                 console.log(err)
+
                 reject(err); 
             }
                 
