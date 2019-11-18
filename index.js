@@ -1977,6 +1977,52 @@ function runQueryFinish(datetime){
     })    
 }
 
+function runQueryMultiple(req, res){
+
+    let sql = req.body.sql        
+
+    var allQueries = [];
+
+    sql.forEach(element => {
+        log_(element)
+
+        let promise =  con.query(sql, function (err, result) {   
+
+            if (err)
+                reject(); 
+                            
+            else
+                resolve(runQueryContinue(result, req.body));
+                    
+        });
+
+        allQueries.push(promise)
+    })
+
+    Promise.all(promises)
+        .then(() => {
+            
+            console.log("Consultas realizadas com sucesso")
+    })
+
+    res.json({"success": true}); 
+
+   /* return new Promise(function(resolve, reject) {
+
+        con.query(sql, function (err, result) {        
+            if (err){
+                console.log(err)
+                reject(err); 
+            }
+                
+            else
+                resolve(runQueryContinue(result, req.body));
+                    
+        });                 
+    })    */
+
+}
+
 async function systemCommandLocal(req, res) {
     console.log("Executando comando...")
     
@@ -2684,6 +2730,17 @@ app.post('/systemCommand', function(req, res) {
 app.post('/runQuery', function(req, res) {    
 
     runQuery(req, res)    
+    .then(data => {
+        res.json({"success": data});
+    })
+    .catch(() => {
+        res.json({"success": false});
+    })
+})
+
+app.post('/runQueryMultiple', function(req, res) {    
+
+    runQueryMultiple(req, res)    
     .then(data => {
         res.json({"success": data});
     })
