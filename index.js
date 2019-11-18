@@ -1936,7 +1936,7 @@ function runQueryContinue(results, body){
     var datetime = moment().format()
 
     let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query, datetime, titulo) \
-        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + rows + "', '" + datetime + "', " + titulo + ");";
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + rows + "', '" + datetime + "', '" + titulo + "');";
 
     log_(sql)
 
