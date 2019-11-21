@@ -1909,38 +1909,49 @@ function runQuery(req, res){
     let sql = req.body.sql
     let sqlparse = sql.replace(/\\\//g, "/");
 
+    var datetime = moment().format()
+    req.body.datetime = datetime
+
     log_(sqlparse)
 
     return new Promise(function(resolve, reject) {
 
-        con.query(sqlparse, function (err, result) {        
-            if (err){
-                console.log(err)
+        runQueryStart(req.body)
+        .then(() => {
 
-                reject(err); 
-            }
-                
-            else
-                resolve(runQueryContinue(result, req.body));
+            con.query(sqlparse, function (err, result) {        
+                if (err){
+                    console.log(err)
+    
+                    reject(err); 
+                }
                     
-        });                 
+                else {
+                    runQueryFinish(body, result)
+                    resolve();
+                }
+                    
+                        
+            });                 
+
+        })
+
+        
     })    
 
 }
 
-function runQueryContinue(results, body){
+function runQueryStart(body){
     
     const cmd = body.cmd
     const idUser = body.idUser
     const ipPonto = body.ipPonto
     const titulo = body.titulo
-    const multiple = body.multiple
+    const multiple = body.multiple    
+    const datetime = req.body.datetime
 
-    var rows = JSON.stringify(results);
-    var datetime = moment().format()
-
-    let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, callback_query, datetime, titulo, multiple) \
-        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + rows + "', '" + datetime + "', '" + titulo + "', '" + multiple + "');";
+    let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status) \
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 'Processando');";
 
     log_(sql)
 
@@ -1952,17 +1963,22 @@ function runQueryContinue(results, body){
                 reject(err);   
             }
                                                          
-            else
-                resolve(runQueryFinish(datetime));
+            resolve();
+                
                     
         });                 
     })    
 }
 
-function runQueryFinish(datetime){
-    
+function runQueryFinish(body, results){    
 
-    let sql = "UPDATE comando_sistema SET status = 1, datetime_exec = '" + moment().format() + "' WHERE datetime = '" + datetime + "';";
+    var rows = JSON.stringify(results);
+    const datetime = body.datetime
+
+    let sql = "UPDATE comando_sistema SET status = 1,\
+                    datetime_exec = '" + moment().format() + "',\
+                    callback_query = '" + rows + "' \
+                    WHERE datetime = '" + datetime + "';";
 
     log_(sql)
 
