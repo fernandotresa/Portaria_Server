@@ -1948,7 +1948,7 @@ function runQueryStart(body){
     const ipPonto = body.ipPonto
     const titulo = body.titulo
     const multiple = body.multiple    
-    const datetime = req.body.datetime
+    const datetime = body.datetime
 
     let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status) \
         VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 'Processando');";
