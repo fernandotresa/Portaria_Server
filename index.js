@@ -1927,7 +1927,7 @@ function runQuery(req, res){
                 }
                     
                 else {
-                    runQueryFinish(body, result)
+                    runQueryFinish(req.body, result)
                     resolve();
                 }
                     
