@@ -2687,14 +2687,8 @@ app.post('/systemCommand', function(req, res) {
  */
 
 app.post('/runQuery', function(req, res) {    
-
     runQuery(req, res)    
-    .then(data => {
-        res.json({"success": data});
-    })
-    .catch(() => {
-        res.json({"success": false});
-    })
+    res.json({"success": true});
 })
 
 
