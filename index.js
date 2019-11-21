@@ -35,7 +35,7 @@ var db_config = {
     host: "10.0.2.239",
     user: "root",
     password: "Mudaragora00",
-    database: "zoologico",
+    database: "zoologico2",
     timezone: 'utc'  
 };
 
