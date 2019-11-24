@@ -1908,10 +1908,9 @@ function runQueryReports(req, res){
 
     let sql = req.body.sql
     let sqlparse = sql.replace(/\\\//g, "/");
-
-    var datetime = moment().format("YYY")
-    req.body.datetime = datetime
-    req.body.ms = moment().milliseconds()
+    
+    req.body.datetime = moment().format()
+    req.body.ms = moment().format("YYYYMMDDhhmmssSS")
 
     log_(sqlparse)
 
