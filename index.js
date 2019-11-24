@@ -1904,7 +1904,7 @@ function systemCommand(req, res){
     });
 }
 
-function runQuery(req, res){
+function runQueryReports(req, res){
 
     let sql = req.body.sql
     let sqlparse = sql.replace(/\\\//g, "/");
@@ -1916,7 +1916,7 @@ function runQuery(req, res){
 
     return new Promise(function(resolve, reject) {
 
-        runQueryStart(req.body)
+        runQueryReportStart(req.body)
         .then(() => {
 
             con.query(sqlparse, function (err, result) {        
@@ -1927,7 +1927,7 @@ function runQuery(req, res){
                 }
                     
                 else {
-                    runQueryFinish(req.body, result)
+                    runQueryReportFinish(req.body, result)
                     resolve();
                 }
                     
@@ -1941,7 +1941,7 @@ function runQuery(req, res){
 
 }
 
-function runQueryStart(body){
+function runQueryReportStart(body){
     
     const cmd = body.cmd
     const idUser = body.idUser
@@ -1950,8 +1950,13 @@ function runQueryStart(body){
     const multiple = body.multiple    
     const datetime = body.datetime
 
-    let sql = "INSERT INTO comando_sistema (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status) \
+    let sql = "INSERT INTO relatorios_analiticos (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status) \
         VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 'Processando');";
+
+    if(cmd > 100){
+        sql = "INSERT INTO relatorios_sinteticos (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status) \
+            VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 'Processando');";
+    }
 
     log_(sql)
 
@@ -1970,15 +1975,24 @@ function runQueryStart(body){
     })    
 }
 
-function runQueryFinish(body, results){    
+function runQueryReportFinish(body, results){    
 
     var rows = JSON.stringify(results);
     const datetime = body.datetime
+    const cmd = body.cmd
 
-    let sql = "UPDATE comando_sistema SET status = 1,\
+    let sql = "UPDATE relatorios_analiticos SET status = 1,\
                     datetime_exec = '" + moment().format() + "',\
                     callback_query = '" + rows + "' \
                     WHERE datetime = '" + datetime + "';";
+
+    if(cmd > 100){
+
+        sql = "UPDATE relatorios_sinteticos SET status = 1,\
+                    datetime_exec = '" + moment().format() + "',\
+                    callback_query = '" + rows + "' \
+                    WHERE datetime = '" + datetime + "';";
+    }
 
     log_(sql)
 
@@ -1999,6 +2013,7 @@ function runQueryFinish(body, results){
 
 
 async function systemCommandLocal(req, res) {
+    
     console.log("Executando comando...")
     
     const { stdout, stderr } = await exec('xdotool key ctrl+Tab');
@@ -2699,11 +2714,11 @@ app.post('/systemCommand', function(req, res) {
 })
 
 /**
- * RODA QUERIES
+ * RODA QUERIES RELATORIOS
  */
 
-app.post('/runQuery', function(req, res) {    
-    runQuery(req, res)    
+app.post('/runQueryReports', function(req, res) {    
+    runQueryReports(req, res)    
     res.json({"success": true});
 })
 
