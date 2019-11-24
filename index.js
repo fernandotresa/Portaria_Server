@@ -1957,7 +1957,7 @@ function runQueryReportStart(body){
             VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 0, '" + body.ms + "');";
     }
 
-    log_(sql)
+    //log_(sql)
 
     return new Promise(function(resolve, reject) {
 
@@ -1993,7 +1993,7 @@ function runQueryReportFinish(body, results){
                     WHERE ms = '" + ms + "';";
     }
 
-    log_(sql)
+    //log_(sql)
 
     return new Promise(function(resolve, reject) {
 
