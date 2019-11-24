@@ -1950,8 +1950,8 @@ function runQueryReportStart(body){
     const multiple = body.multiple    
     const datetime = body.datetime
 
-    let sql = "INSERT INTO relatorios_analiticos (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status) \
-        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 'Processando');";
+    let sql = "INSERT INTO relatorios_analiticos (id_comando, id_user, ip_ponto, datetime, titulo, status) \
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', 'Processando');";
 
     if(cmd > 100){
         sql = "INSERT INTO relatorios_sinteticos (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status) \
