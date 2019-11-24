@@ -1909,8 +1909,9 @@ function runQueryReports(req, res){
     let sql = req.body.sql
     let sqlparse = sql.replace(/\\\//g, "/");
 
-    var datetime = moment().format()
+    var datetime = moment().format("YYY")
     req.body.datetime = datetime
+    req.body.ms = moment().milliseconds()
 
     log_(sqlparse)
 
@@ -1951,11 +1952,11 @@ function runQueryReportStart(body){
     const datetime = body.datetime
 
     let sql = "INSERT INTO relatorios_analiticos (id_comando, id_user, ip_ponto, datetime, titulo, status) \
-        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', 'Processando');";
+        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', 0);";
 
     if(cmd > 100){
         sql = "INSERT INTO relatorios_sinteticos (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status) \
-            VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 'Processando');";
+            VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 0);";
     }
 
     log_(sql)
@@ -1978,20 +1979,20 @@ function runQueryReportStart(body){
 function runQueryReportFinish(body, results){    
 
     var rows = JSON.stringify(results);
-    const datetime = body.datetime
+    const ms = body.ms
     const cmd = body.cmd
 
     let sql = "UPDATE relatorios_analiticos SET status = 1,\
                     datetime_exec = '" + moment().format() + "',\
                     callback_query = '" + rows + "' \
-                    WHERE datetime = '" + datetime + "';";
+                    WHERE datetime = '" + ms + "';";
 
     if(cmd > 100){
 
         sql = "UPDATE relatorios_sinteticos SET status = 1,\
                     datetime_exec = '" + moment().format() + "',\
                     callback_query = '" + rows + "' \
-                    WHERE datetime = '" + datetime + "';";
+                    WHERE datetime = '" + ms + "';";
     }
 
     log_(sql)
