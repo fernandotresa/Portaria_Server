@@ -1908,9 +1908,6 @@ function runQueryReports(req, res){
 
     let sql = req.body.sql
     let sqlparse = sql.replace(/\\\//g, "/");
-    
-    req.body.datetime = moment().format()
-    req.body.ms = moment().format("YYYYMMDDhhmmssSS")
 
     log_(sqlparse)
 
@@ -1949,13 +1946,15 @@ function runQueryReportStart(body){
     const titulo = body.titulo
     const multiple = body.multiple    
     const datetime = body.datetime
+    req.body.ms = moment().format("YYYYMMDDhhmmssSS")
 
     let sql = "INSERT INTO relatorios_analiticos (id_comando, id_user, ip_ponto, datetime, titulo, status) \
         VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', 0);";
 
     if(cmd > 100){
-        sql = "INSERT INTO relatorios_sinteticos (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status) \
-            VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 0);";
+
+        sql = "INSERT INTO relatorios_sinteticos (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status, ms) \
+            VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 0, " + req.body.ms + ");";
     }
 
     log_(sql)
