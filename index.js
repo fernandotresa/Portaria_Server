@@ -1990,7 +1990,7 @@ function runQueryReportFinish(body, results){
         sql = "UPDATE relatorios_sinteticos SET status = 1,\
                     datetime_exec = '" + moment().format() + "',\
                     callback_query = '" + rows + "' \
-                    WHERE datetime = '" + ms + "';";
+                    WHERE ms = '" + ms + "';";
     }
 
     log_(sql)
