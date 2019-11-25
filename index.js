@@ -1945,7 +1945,7 @@ function runQueryReportStart(body){
     const ipPonto = body.ipPonto
     const titulo = body.titulo
     const multiple = body.multiple    
-    const datetime = body.datetime
+    const datetime = moment().format("YYYY-MM-DDThh:mm:ss")
     body.ms = moment().format("YYYYMMDDhhmmssSSSSSSSSS")
 
     let sql = "INSERT INTO relatorios_analiticos (id_comando, id_user, ip_ponto, datetime, titulo, status) \
