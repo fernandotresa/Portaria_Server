@@ -1946,7 +1946,9 @@ function runQueryReportStart(body){
     const titulo = body.titulo
     const multiple = body.multiple    
     const datetime = moment().format("YYYY-MM-DDThh:mm:ss")
+
     body.ms = moment().format("YYYYMMDDhhmmssSSSSSSSSS")
+    body.datetime = datetime
 
     let sql = "INSERT INTO relatorios_analiticos (id_comando, id_user, ip_ponto, datetime, titulo, status) \
         VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', 0);";
@@ -1957,7 +1959,7 @@ function runQueryReportStart(body){
             VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 0, '" + body.ms + "');";
     }
 
-    //log_(sql)
+    log_(sql)
 
     return new Promise(function(resolve, reject) {
 
