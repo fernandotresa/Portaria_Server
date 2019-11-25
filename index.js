@@ -1978,12 +1978,13 @@ function runQueryReportFinish(body, results){
 
     var rows = JSON.stringify(results);
     const ms = body.ms
+    const datetime = body.datetime
     const cmd = body.cmd
 
     let sql = "UPDATE relatorios_analiticos SET status = 1,\
                     datetime_exec = '" + moment().format() + "',\
                     callback_query = '" + rows + "' \
-                    WHERE datetime = '" + ms + "';";
+                    WHERE datetime = '" + datetime + "';";
 
     if(cmd > 100){
 
