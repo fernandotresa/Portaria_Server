@@ -23,29 +23,13 @@ function log_(str){
  * BANCO DE DADOS
  ****************************/
 
-/*var db_config = {
-    host: "rds001.cacasorqzf2r.sa-east-1.rds.amazonaws.com",
-    user: "portaria",
-    password: "c4d3Oc0ntr4t0",
-    database: "portaria",
-    timezone: 'utc'  
-};*/
-
 var db_config = {
-    host: "10.0.2.239",
-    user: "root",
-    password: "Mudaragora00",
-    database: "zoologico2",
-    timezone: 'utc'  
-};
-
-/*var db_config = {
     host: "10.19.0.3",
     user: "root",
     password: "Mudaragora00",
     database: "zoologico",
     timezone: 'utc'  
-};*/
+};
 
 let con;
 
@@ -1049,8 +1033,7 @@ function editEmployee(req, res){
     LEFT JOIN  setores ON setores.id =  visitantes.id_setor \
     LEFT JOIN  cargos ON cargos.id =  visitantes.id_cargo \
     WHERE visitantes.name IS NOT NULL \
-    ORDER BY visitantes.name ASC \
-    LIMIT 0,20;";
+    ORDER BY visitantes.name ASC;";
 
     log_(sql)    
 
@@ -1996,7 +1979,7 @@ function runQueryReportFinish(body, results){
                     WHERE ms = '" + ms + "';";
     }
 
-    //log_(sql)
+    log_(sql)
 
     return new Promise(function(resolve, reject) {
 
