@@ -127,7 +127,7 @@ function geraRelatorio(req, res){
                     finalizaRelatorio(datetime, filename)
 
                     .then(() => {                           
-                        res.json({"success": filename});     
+                        console.log('Relatório finalizado: ', filename});     
                     })
                     
             })      
@@ -2766,7 +2766,8 @@ app.post('/systemCommand', function(req, res) {
  */
 
 app.post('/runQueryReports', function(req, res) {    
-    geraRelatorio(req, res)        
+    geraRelatorio(req, res)    
+    res.json({"success": 1});  
 })
 
 
