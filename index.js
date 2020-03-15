@@ -216,14 +216,14 @@ async function popularExcel(result, worksheet){
     
                 let row = {
                     id: i, 
-                    data: element.data, 
-                    hora: element.hora, 
-                    nome: element.nome,
-                    ponto: element.ponto,
+                    data: element.datahora, 
+                    hora: element.datahora, 
+                    nome: element.FUNCIONARIO,
+                    ponto: element.PONTO,
                     tipo: element.tipo, 
-                    setor: element.setor, 
-                    empresa: element.empresa, 
-                    cracha: element.cracha, 
+                    setor: element.SETOR, 
+                    empresa: element.EMPRESA, 
+                    cracha: element.CRACHA, 
                     placa: element.placa
                 }
 
