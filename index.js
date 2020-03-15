@@ -114,7 +114,7 @@ function geraRelatorio(req, res){
 
             var worksheet = workbook.getWorksheet('Relatório')
 
-            getInfoRelatorios(con, req)
+            getInfoRelatorios(req)
 
             .then((result) => {
 
@@ -139,7 +139,7 @@ function geraRelatorio(req, res){
 }
 
 
-function getInfoRelatorios(con, req){
+function getInfoRelatorios(req){
 
 
     return new Promise(function(resolve, reject){
@@ -226,9 +226,6 @@ async function popularExcel(result, worksheet){
                     cracha: element.cracha, 
                     placa: element.placa
                 }
-
-
-                console.log(row)
 
                 worksheet.addRow(row)                                                            
                 resolveExcel()
