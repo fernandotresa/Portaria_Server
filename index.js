@@ -82,7 +82,7 @@ function startExcel(){
     return new Promise(function(resolve){ 
 
         var workbook = new ExcelJS.Workbook();
-        var worksheet = workbook.addWorksheet('Relatório Consolidado');
+        var worksheet = workbook.addWorksheet('Relatório');
 
         worksheet.columns = [
             { header: 'Data', key: 'data', width: 25 },
@@ -102,8 +102,6 @@ function startExcel(){
 }
 
 function geraRelatorio(req, res){
-
-    console.log(req.body)
         
     let promises = []
 
@@ -112,32 +110,55 @@ function geraRelatorio(req, res){
         
         salvaRelatorio(req)
 
-    .then((datetime) => {
+        .then((datetime) => {
 
-        var worksheet = workbook.getWorksheet('Relatório Consolidado')
+            var worksheet = workbook.getWorksheet('Relatório')
 
-        let promise = popularExcel(result, worksheet)
-        promises.push(promise)
+            getInfoRelatorios(con, req)
 
-        Promise.all(promises)
-    
-            .then(() => {    
-                    
+            .then((result) => {
+
+                let promise = popularExcel(result, worksheet)
+                promises.push(promise)
+
                 salvaExcel(req, workbook)
                 .then((filename) => {
-    
+
                     finalizaRelatorio(datetime, filename)
 
                     .then(() => {                           
                         res.json({"success": filename});     
                     })
                     
-                })                    
-            }) 
+            })      
+
+            })
+             
         })       
     })    
 }
 
+
+function getInfoRelatorios(con, req){
+
+
+    return new Promise(function(resolve, reject){
+
+       let sql = req.body.sql
+
+       log_(sql)
+
+        con.query(sql, function (err, result) {        
+            if (err){
+                reject(err);
+            }
+
+            resolve(result)
+
+        });
+
+    })
+}
 
 function salvaRelatorio(req){
 
