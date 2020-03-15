@@ -189,8 +189,10 @@ function salvaExcel(req, workbook){
         let datetimenow = moment().format("DDMMYYYYhhmmss")
 
         let diretorioArquivos = "/tmp/"
+        let diretorioArquivosUrl = "/tmp/"
 
         let filename = diretorioArquivos + 'Relatorio_' + dataInicio + '_' + dataFinal + '_' + datetimenow + '.xlsx'
+        
         let path = diretorioArquivosUrl + 'Relatorio_' + dataInicio + '_' + dataFinal + '_' + datetimenow + '.xlsx'
 
         log_('Escrevendo no arquivo: ' + filename)            
