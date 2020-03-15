@@ -245,6 +245,29 @@ async function popularExcel(result, worksheet){
     })    
 }
 
+function finalizaRelatorio(datetime, filename){
+
+    return new Promise(function(resolve, reject){         
+
+        var sql = "UPDATE relatorios SET \
+                datetimeFim = '" + moment().format("YYYY-MM-DDThh:mm:ss") + "',\
+                filename = '" + filename + "', \
+                status = 'Finalizado' \
+            WHERE datetime = '" + datetime + "'"
+
+        log_(sql)
+        
+        con.query(sql, function (err, result) {        
+            if (err){
+                reject(err);
+            }
+
+            resolve(datetime)
+
+        });
+    })
+
+}
 
 
 /*************************
