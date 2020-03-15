@@ -127,7 +127,7 @@ function geraRelatorio(req, res){
                     finalizaRelatorio(datetime, filename)
 
                     .then(() => {                           
-                        console.log('Relatório finalizado: ', filename});     
+                        console.log('Relatório finalizado: ', filename)
                     })
                     
             })      
