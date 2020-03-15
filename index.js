@@ -7,6 +7,7 @@ let logger = require('morgan');
 let methodOverride = require('method-override')
 let cors = require('cors');
 var moment = require('moment-timezone');
+const ExcelJS = require('exceljs');
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -70,6 +71,159 @@ function databasePing(){
 
 handleDisconnect()
 databasePing()
+
+
+/*********************
+ * RELATÓRIOS EXCEL
+ **********************/
+
+function startExcel(){
+
+    return new Promise(function(resolve){ 
+
+        var workbook = new ExcelJS.Workbook();
+        var worksheet = workbook.addWorksheet('Relatório Consolidado');
+
+        worksheet.columns = [
+            { header: 'Data', key: 'data', width: 25 },
+            { header: 'Hora', key: 'hora', width: 25 },
+            { header: 'Nome', key: 'nome', width: 25 },
+            { header: 'Ponto de acesso', key: 'ponto', width: 25 },
+            { header: 'Tipo', key: 'tipo', width: 25 },
+            { header: 'Setor', key: 'setor', width: 25 },
+            { header: 'Empresa', key: 'empresa', width: 25 },
+            { header: 'Crachá', key: 'cracha', width: 25 },
+            { header: 'Placa', key: 'placa', width: 25 }
+        ];   
+        
+        resolve(workbook)
+
+    })    
+}
+
+function geraRelatorio(req, res){
+
+    console.log(req.body)
+        
+    let promises = []
+
+    startExcel()
+    .then((workbook) => {
+        
+        salvaRelatorio(req)
+
+    .then((datetime) => {
+
+        var worksheet = workbook.getWorksheet('Relatório Consolidado')
+
+        let promise = popularExcel(result, worksheet)
+        promises.push(promise)
+
+        Promise.all(promises)
+    
+            .then(() => {    
+                    
+                salvaExcel(req, workbook)
+                .then((filename) => {
+    
+                    finalizaRelatorio(datetime, filename)
+
+                    .then(() => {                           
+                        res.json({"success": filename});     
+                    })
+                    
+                })                    
+            }) 
+        })       
+    })    
+}
+
+
+function salvaRelatorio(req){
+
+    return new Promise(function(resolve, reject){ 
+
+        let datetime = moment().format("YYYY-MM-DDThh:mm:ss")
+
+        var sql = "INSERT INTO relatorios (datetime, dataInicio, dataFim) \
+                VALUES ('" + datetime + "', '" + req.body.dataInicial + "', '" + req.body.dataFinal + "')"
+
+        log_(sql)
+        
+        con.query(sql, function (err, result) {        
+            if (err) reject(err);
+
+            resolve(datetime)
+
+        });
+    })
+}
+
+function salvaExcel(req, workbook){
+
+    return new Promise(function(resolve, reject){
+    
+        let dataInicio = moment(req.body.dataInicial).format("DDMMYYYY")
+        let dataFinal = moment(req.body.dataFinal).format("DDMMYYYY")
+        let datetimenow = moment().format("DDMMYYYYhhmmss")
+
+        let filename = diretorioArquivos + 'Relatorio_' + dataInicio + '_' + dataFinal + '_' + datetimenow + '.xlsx'
+        let path = diretorioArquivosUrl + 'Relatorio_' + dataInicio + '_' + dataFinal + '_' + datetimenow + '.xlsx'
+
+        log_('Escrevendo no arquivo: ' + filename)            
+        
+        workbook.xlsx.writeFile(filename)
+        .then(() => {
+            
+            resolve(path)
+        })            
+        
+    })    
+}
+
+async function popularExcel(result, worksheet){
+
+    return new Promise(function(resolve){    
+        
+        let promises = []
+
+        for(var i = 0; i < result.length; i++){  
+            
+            let promise = new Promise(function(resolveExcel){ 
+
+                let element = result[i]  
+    
+                let row = {
+                    id: i, 
+                    data: element.data, 
+                    hora: element.hora, 
+                    nome: element.nome,
+                    ponto: element.ponto,
+                    tipo: element.tipo, 
+                    setor: element.setor, 
+                    empresa: element.empresa, 
+                    cracha: element.cracha, 
+                    placa: element.placa
+                }
+
+
+                console.log(row)
+
+                worksheet.addRow(row)                                                            
+                resolveExcel()
+            })
+            
+
+            promises.push(promise)
+        }
+
+
+     return resolve(Promise.all(promises))
+        
+    })    
+}
+
+
 
 /*************************
  * LOGIN
@@ -1887,115 +2041,6 @@ function systemCommand(req, res){
     });
 }
 
-function runQueryReports(req, res){
-
-    let sql = req.body.sql
-    let sqlparse = sql.replace(/\\\//g, "/");
-
-    log_(sqlparse)
-
-    return new Promise(function(resolve, reject) {
-
-        runQueryReportStart(req.body)
-        .then(() => {
-
-            con.query(sqlparse, function (err, result) {        
-                if (err){
-                    console.log(err)
-    
-                    reject(err); 
-                }
-                    
-                else {
-                    runQueryReportFinish(req.body, result)
-                    resolve();
-                }
-                    
-                        
-            });                 
-
-        })
-
-        
-    })    
-
-}
-
-function runQueryReportStart(body){
-    
-    const cmd = body.cmd
-    const idUser = body.idUser
-    const ipPonto = body.ipPonto
-    const titulo = body.titulo
-    const multiple = body.multiple    
-    const datetime = moment().format("YYYY-MM-DDThh:mm:ss")
-
-    body.ms = moment().format("YYYYMMDDhhmmssSSSSSSSSS")
-    body.datetime = datetime
-
-    let sql = "INSERT INTO relatorios_analiticos (id_comando, id_user, ip_ponto, datetime, titulo, status) \
-        VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', 0);";
-
-    if(cmd > 100){
-
-        sql = "INSERT INTO relatorios_sinteticos (id_comando, id_user, ip_ponto, datetime, titulo, multiple, status, ms) \
-            VALUES (" + cmd + "," + idUser + ",'" + ipPonto + "', '" + datetime + "', '" + titulo + "', '" + multiple + "', 0, '" + body.ms + "');";
-    }
-
-    log_(sql)
-
-    return new Promise(function(resolve, reject) {
-
-        con.query(sql, function (err, result) {        
-            if (err){
-                console.log(err)
-                reject(err);   
-            }
-                                                         
-            resolve();
-                
-                    
-        });                 
-    })    
-}
-
-function runQueryReportFinish(body, results){    
-
-    var rows = JSON.stringify(results);
-    const ms = body.ms
-    const datetime = body.datetime
-    const cmd = body.cmd
-
-    let sql = "UPDATE relatorios_analiticos SET status = 1,\
-                    datetime_exec = '" + moment().format() + "',\
-                    callback_query = '" + rows + "' \
-                    WHERE datetime = '" + datetime + "';";
-
-    if(cmd > 100){
-
-        sql = "UPDATE relatorios_sinteticos SET status = 1,\
-                    datetime_exec = '" + moment().format() + "',\
-                    callback_query = '" + rows + "' \
-                    WHERE ms = '" + ms + "';";
-    }
-
-    log_(sql)
-
-    return new Promise(function(resolve, reject) {
-
-        con.query(sql, function (err, result) {        
-            if (err){
-                console.log(err)
-                reject(err);   
-            }
-                                                         
-            else
-                resolve("Consulta realizada com sucesso!");                                            
-                    
-        });                 
-    })    
-}
-
 
 async function systemCommandLocal(req, res) {
     
@@ -2703,8 +2748,7 @@ app.post('/systemCommand', function(req, res) {
  */
 
 app.post('/runQueryReports', function(req, res) {    
-    runQueryReports(req, res)    
-    res.json({"success": true});
+    geraRelatorio(req, res)        
 })
 
 
