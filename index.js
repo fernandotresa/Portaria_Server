@@ -72,6 +72,28 @@ function databasePing(){
 handleDisconnect()
 databasePing()
 
+/*******************
+ * RELATÓRIOS
+ **************************/
+
+ function runQueryReports(req, res){
+    let multiple = req.body.multiple
+
+    let con = mysql.createConnection(db_config);
+   
+    con.connect(function(err) {
+
+        if(multiple)
+            geraRelatorioMultiple(req, con)    
+        else 
+            geraRelatorio(req, con)    
+        
+        res.json({"success": 1});  
+       
+    });
+    
+ }
+
 
 /*********************
  * RELATÓRIOS EXCEL ANALITICO
@@ -101,20 +123,20 @@ function startExcel(){
     })    
 }
 
-function geraRelatorio(req, res){
+function geraRelatorio(req, db){
         
     let promises = []
 
     startExcel()
     .then((workbook) => {
         
-        salvaRelatorio(req)
+        salvaRelatorio(req, db)
 
         .then((datetime) => {
 
             var worksheet = workbook.getWorksheet('Relatório')
 
-            getInfoRelatorios(req.body.sql)
+            getInfoRelatorios(req.body.sql, db)
 
             .then((result) => {
 
@@ -124,7 +146,7 @@ function geraRelatorio(req, res){
                 salvaExcel(req, workbook)
                 .then((filename) => {
 
-                    finalizaRelatorio(datetime, filename)
+                    finalizaRelatorio(datetime, filename, db)
 
                     .then(() => {                           
                         console.log('Relatório finalizado: ', filename)
@@ -139,14 +161,14 @@ function geraRelatorio(req, res){
 }
 
 
-function getInfoRelatorios(sql){
+function getInfoRelatorios(sql, db){
 
 
     return new Promise(function(resolve, reject){       
       
        log_(sql)
 
-        con.query(sql, function (err, result) {        
+       db.query(sql, function (err, result) {        
             if (err){
                 reject(err);
             }
@@ -158,7 +180,7 @@ function getInfoRelatorios(sql){
     })
 }
 
-function salvaRelatorio(req){
+function salvaRelatorio(req, db){
 
     return new Promise(function(resolve, reject){ 
 
@@ -169,7 +191,7 @@ function salvaRelatorio(req){
 
         log_(sql)
         
-        con.query(sql, function (err, result) {        
+        db.query(sql, function (err, result) {        
             if (err) reject(err);
 
             resolve(datetime)
@@ -243,7 +265,7 @@ async function popularExcel(result, worksheet){
     })    
 }
 
-function finalizaRelatorio(datetime, filename){
+function finalizaRelatorio(datetime, filename, db){
 
     return new Promise(function(resolve, reject){         
 
@@ -257,11 +279,12 @@ function finalizaRelatorio(datetime, filename){
 
         
         
-        con.query(sql, function (err, result) {        
+        db.query(sql, function (err, result) {        
             if (err){
                 reject(err);
             }
 
+            db.close()
             resolve(datetime)
 
         });
@@ -273,17 +296,14 @@ function finalizaRelatorio(datetime, filename){
  * RELATÓRIOS EXCEL SINTETICO
  **********************/
 
-function geraRelatorioMultiple(req, res){
-
-    console.log('Relatório multiplo ')
-    console.log(req.body.length)
+function geraRelatorioMultiple(req, db){
         
     let promises = []
 
     startExcel()
     .then((workbook) => {
         
-        salvaRelatorio(req)
+        salvaRelatorio(req, db)
 
         .then((datetime) => {
 
@@ -295,7 +315,7 @@ function geraRelatorioMultiple(req, res){
 
             array.forEach((sql) => {                
 
-                getInfoRelatorios(sql)
+                getInfoRelatorios(sql, db)
 
                 .then((result) => {
     
@@ -307,7 +327,7 @@ function geraRelatorioMultiple(req, res){
             salvaExcel(req, workbook)
             .then((filename) => {
 
-                finalizaRelatorio(datetime, filename)
+                finalizaRelatorio(datetime, filename, db)
 
                 .then(() => {                           
                     console.log('Relatório finalizado: ', filename)
@@ -2840,16 +2860,7 @@ app.post('/systemCommand', function(req, res) {
  */
 
 app.post('/runQueryReports', function(req, res) {    
-
-    let multiple = req.body.multiple
-
-    if(multiple)
-        geraRelatorioMultiple(req, res)
-    
-    else 
-        geraRelatorio(req, res)    
-    
-    res.json({"success": 1});  
+    runQueryReports(req, res)    
 })
 
 
