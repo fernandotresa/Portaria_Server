@@ -145,7 +145,7 @@ function getInfoRelatorios(req){
     return new Promise(function(resolve, reject){
 
        let sql = req.body.sql
-
+      
        log_(sql)
 
         con.query(sql, function (err, result) {        
@@ -269,6 +269,12 @@ function finalizaRelatorio(datetime, filename){
         });
     })
 
+}
+
+
+function geraRelatorioMultiple(req, res){
+    console.log('Relatório multiplo ')
+    console.log(req.body)
 }
 
 
@@ -2795,7 +2801,15 @@ app.post('/systemCommand', function(req, res) {
  */
 
 app.post('/runQueryReports', function(req, res) {    
-    geraRelatorio(req, res)    
+
+    let multiple = req.body.multiple
+
+    if(multiple)
+        geraRelatorioMultiple(req, res)
+    
+    else 
+        geraRelatorio(req, res)    
+    
     res.json({"success": 1});  
 })
 
