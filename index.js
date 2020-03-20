@@ -74,7 +74,7 @@ databasePing()
 
 
 /*********************
- * RELATÓRIOS EXCEL
+ * RELATÓRIOS EXCEL ANALITICO
  **********************/
 
 function startExcel(){
@@ -114,7 +114,7 @@ function geraRelatorio(req, res){
 
             var worksheet = workbook.getWorksheet('Relatório')
 
-            getInfoRelatorios(req)
+            getInfoRelatorios(req.body.sql)
 
             .then((result) => {
 
@@ -139,12 +139,10 @@ function geraRelatorio(req, res){
 }
 
 
-function getInfoRelatorios(req){
+function getInfoRelatorios(sql){
 
 
-    return new Promise(function(resolve, reject){
-
-       let sql = req.body.sql
+    return new Promise(function(resolve, reject){       
       
        log_(sql)
 
@@ -271,12 +269,50 @@ function finalizaRelatorio(datetime, filename){
 
 }
 
+/*********************
+ * RELATÓRIOS EXCEL SINTETICO
+ **********************/
 
 function geraRelatorioMultiple(req, res){
-    console.log('Relatório multiplo ')
-    console.log(req.body)
-}
 
+    console.log('Relatório multiplo ')
+    console.log(req.body.length)
+        
+    let promises = []
+
+    startExcel()
+    .then((workbook) => {
+        
+        salvaRelatorio(req)
+
+        .then((datetime) => {
+
+            var worksheet = workbook.getWorksheet('Relatório')
+            let sqls = req.body.sql
+
+            sqls.forEach((sql) => {
+
+                getInfoRelatorios(sql)
+
+                .then((result) => {
+    
+                    let promise = popularExcel(result, worksheet)
+                    promises.push(promise)                                
+                })
+            })
+
+            salvaExcel(req, workbook)
+            .then((filename) => {
+
+                finalizaRelatorio(datetime, filename)
+
+                .then(() => {                           
+                    console.log('Relatório finalizado: ', filename)
+                })                
+            })                          
+        })       
+    })    
+}
 
 /*************************
  * LOGIN
