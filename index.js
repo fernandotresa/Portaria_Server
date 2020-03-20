@@ -136,6 +136,9 @@ function geraRelatorio(req, db){
 
             var worksheet = workbook.getWorksheet('Relatório')
 
+
+            console.log(req.body.sql)
+
             getInfoRelatorios(req.body.sql, db)
 
             .then((result) => {
@@ -284,7 +287,7 @@ function finalizaRelatorio(datetime, filename, db){
                 reject(err);
             }
 
-            db.close()
+            db.end()
             resolve(datetime)
 
         });
@@ -310,8 +313,6 @@ function geraRelatorioMultiple(req, db){
             var worksheet = workbook.getWorksheet('Relatório')
             let sqls = req.body.sql
             let array = sqls.split(";");
-
-            console.log(typeof(array), array.length)
 
             array.forEach((sql) => {                
 
