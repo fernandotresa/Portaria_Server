@@ -289,8 +289,11 @@ function geraRelatorioMultiple(req, res){
 
             var worksheet = workbook.getWorksheet('Relatório')
             let sqls = req.body.sql
+            let array = sqls.split(",");
 
-            sqls.forEach((sql) => {
+            console.log(typeof(array), array.length)
+
+            array.forEach((sql) => {                
 
                 getInfoRelatorios(sql)
 
