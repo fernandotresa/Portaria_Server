@@ -10,10 +10,9 @@ var moment = require('moment-timezone');
 const ExcelJS = require('exceljs');
 
 app.use(logger('dev'));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
 app.use(cors());
-app.use(express.bodyParser({limit: '50mb'}));
 
 function log_(str){
     let now = moment().format("DD/MM/YYYY hh:mm:ss")
