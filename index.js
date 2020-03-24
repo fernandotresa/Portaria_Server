@@ -9,6 +9,8 @@ let cors = require('cors');
 var moment = require('moment-timezone');
 const ExcelJS = require('exceljs');
 
+const diretorioRelatorios = "/home/portaria/relatorios/"
+
 app.use(logger('dev'));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
@@ -209,14 +211,8 @@ function salvaExcel(req, workbook){
     
         let dataInicio = moment(req.body.dataInicial).format("DDMMYYYY")
         let dataFinal = moment(req.body.dataFinal).format("DDMMYYYY")
-        let datetimenow = moment().format("DDMMYYYYhhmmss")
-
-        let diretorioArquivos = "/tmp/"
-        //let diretorioArquivosUrl = "/tmp/"
-
-        let filename = diretorioArquivos + 'Relatorio_' + dataInicio + '_' + dataFinal + '_' + datetimenow + '.xlsx'
-        
-        //let path = diretorioArquivosUrl + 'Relatorio_' + dataInicio + '_' + dataFinal + '_' + datetimenow + '.xlsx'
+        let datetimenow = moment().format("DDMMYYYYhhmmss")                
+        let filename = diretorioRelatorios + 'Relatorio_' + dataInicio + '_' + dataFinal + '_' + datetimenow + '.xlsx'                
 
         log_('Escrevendo no arquivo: ' + filename)            
         
