@@ -314,15 +314,22 @@ function geraRelatorioMultiple(req, db){
             let sqls = req.body.sql
             let array = sqls.split(";");
 
-            array.forEach((sql) => {                
+            array.forEach((sql) => {  
+                
+                if(sql && sql.length > 0){
 
-                getInfoRelatorios(sql, db)
+                    getInfoRelatorios(sql, db)
 
-                .then((result) => {
-    
-                    let promise = popularExcel(result, worksheet)
-                    promises.push(promise)                                
-                })
+                    .then((result) => {
+        
+                        let promise = popularExcel(result, worksheet)
+                        promises.push(promise)                                
+                    })
+
+
+                }
+
+                
             })
 
             salvaExcel(req, workbook)
