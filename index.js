@@ -188,6 +188,12 @@ function getInfoRelatorios(sql, db){
     return new Promise(function(resolve, reject){                  
 
        db.query(sql, function (err, result) {        
+
+            if(err){
+                console.log('Erro ao processar consulta ', sql)
+                reject()
+            }
+
             resolve(result)
         });
 
@@ -365,6 +371,8 @@ function geraRelatorioMultiple(req, db){
             var worksheet = workbook.getWorksheet('Relatório')
             let sqlsTotal = req.body.sqlsTotal
             let sqls = req.body.sql
+
+            console.log(sqls)
             
             let array = sqls.split(";");
             let arrayTotal = sqlsTotal.split(";");
@@ -374,6 +382,8 @@ function geraRelatorioMultiple(req, db){
             worksheet.addRow()
 
             populateSync(arrayTotal, worksheet, db, rowSintetico)
+
+
             .then(() => {
 
                 worksheet.addRow()
