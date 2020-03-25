@@ -295,11 +295,12 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
     
                 worksheet.addRow(row)                                      
             })                    
-    
-         return resolve()
 
         }
         
+
+        return resolve()
+
         
     })    
 }
