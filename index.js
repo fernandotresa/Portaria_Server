@@ -399,11 +399,9 @@ function populateSync(array, worksheet, db, rowSintetico){
             }                                
         })
 
-        Promise.all(promises)
-        .then(() => {
-
-            resolve()
-        })
+        console.log('Total promises processadads: ', promises.length)
+        return Promise.all(promises)
+        
     })
         
 
