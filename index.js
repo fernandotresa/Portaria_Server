@@ -183,9 +183,7 @@ function geraRelatorio(req, db){
 }
 
 
-function getInfoRelatorios(sql, db){
-
-    console.log('Gerando relatório ', sql)
+function getInfoRelatorios(sql, db){    
 
     return new Promise(function(resolve, reject){                  
 
@@ -345,7 +343,7 @@ function geraRelatorioMultiple(req, db){
             let sqls = req.body.sql
             let array = sqls.split(";");
 
-            console.log('Iniciando populate sync ', datetime)            
+            console.log('Iniciando geração do relatório ', datetime)            
 
             populateSync(array, worksheet, db, rowSintetico)             
 
@@ -390,7 +388,8 @@ function populateSync(array, worksheet, db, rowSintetico){
 
         .then((result) => {
 
-            console.log('Total promises DB processadads: ', promises.length, result.length)
+            console.log('Total de consultas processadas: ', promises.length, result.length)
+
             let promisess = []
             
             result.forEach((element) => {                
@@ -401,7 +400,7 @@ function populateSync(array, worksheet, db, rowSintetico){
             Promise.all(promisess)
             .then(() => {
 
-                console.log('Total promises EXCEL processadads: ', promisess.length)
+                console.log('Total entradas no EXCEL processadads: ', promisess.length)
 
                 resolve()
 
