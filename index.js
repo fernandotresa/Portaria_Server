@@ -287,11 +287,9 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
         
         let promises = []
 
-        for(var i = 0; i < result.length; i++){  
+        result.forEach(element => {
             
             let promise = new Promise(function(resolveExcel){ 
-
-                let element = result[i]  
     
                 let row = {
                     id: rowSintetico, 
@@ -366,6 +364,7 @@ function geraRelatorioMultiple(req, db){
             console.log('Iniciando populate sync ')
             
             populateSync(array, worksheet, db, rowSintetico)
+
             .then(() => {
 
                 console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico, promises.length)
