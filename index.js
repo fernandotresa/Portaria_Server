@@ -362,41 +362,59 @@ function geraRelatorioMultiple(req, db){
             var worksheet = workbook.getWorksheet('Relatório')
             let sqls = req.body.sql
             let array = sqls.split(";");
+
+            console.log('Iniciando populate sync ')
             
-            array.forEach((sql) => {  
-
-                if(sql && sql.length > 0){
-
-                    getInfoRelatorios(sql, db)
-
-                    .then((result) => {
-                                
-                        let promise = popularSinteticoExcel(result, worksheet, rowSintetico++)
-                        promises.push(promise)                                
-                    })                
-                }                                
-            }) 
-
-            Promise.all(promises)
+            populateSync(array, workbook)
             .then(() => {
 
                 console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico, promises.length)
                     
-                salvaExcel(req, workbook)
+                salvaExcel(req, worksheet)
                 .then((filename) => {
     
                     finalizaRelatorio(datetime, filename, db)
-    
                     .then(() => {                           
                         console.log('Relatório finalizado: ', filename)
                     })                
                 })
 
-                
-            })                                    
+            })
+                                                    
         })    
                         
     })          
+}
+
+
+function populateSync(array, worksheet){
+
+    return new Promise(function(resolve){ 
+        
+        let promises = []
+
+        array.forEach((sql) => {  
+    
+            if(sql && sql.length > 0){
+    
+                getInfoRelatorios(sql, db)
+    
+                .then((result) => {
+                            
+                    let promise = popularSinteticoExcel(result, worksheet, rowSintetico++)
+                    promises.push(promise)                                
+                })                
+            }                                
+        })
+
+        Promise.all(promises)
+        .then(() => {
+
+            resolve()
+        })
+    })
+        
+
 }
 
 /*************************
