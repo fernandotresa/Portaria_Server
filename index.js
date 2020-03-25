@@ -185,14 +185,12 @@ function geraRelatorio(req, db){
 
 function getInfoRelatorios(sql, db){
 
+    console.log('Gerando relatório ', sql)
 
-    return new Promise(function(resolve, reject){       
-      
-      // log_(sql)
+    return new Promise(function(resolve, reject){                  
 
        db.query(sql, function (err, result) {        
             resolve(result)
-
         });
 
     })
@@ -346,35 +344,33 @@ function geraRelatorioMultiple(req, db){
 
         .then((datetime) => {
 
-            let promises = []
             let rowSintetico = 0
         
             var worksheet = workbook.getWorksheet('Relatório')
             let sqls = req.body.sql
             let array = sqls.split(";");
 
-            console.log('Iniciando populate sync ')
-            
-            populateSync(array, worksheet, db, rowSintetico)
-            
-            .then(() => {
+            console.log('Iniciando populate sync ', datetime)            
 
-                console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico, promises.length)
-                    
+            populateSync(array, worksheet, db, rowSintetico)             
+
+            .then(() => {
+                                    
                 salvaExcel(req, worksheet)
                 .then((filename) => {
-    
+
                     finalizaRelatorio(datetime, filename, db)
                     .then(() => {                           
                         console.log('Relatório finalizado: ', filename)
                     })                
                 })
+                
                 .catch(() => {
                     console.error('Falha ao criar excel')
                 })
 
             })
-                                                    
+            
         })    
                         
     })          
@@ -389,24 +385,31 @@ function populateSync(array, worksheet, db, rowSintetico){
 
         array.forEach((sql) => {  
     
-            getInfoRelatorios(sql, db)
-    
-                .then((result) => {
-                            
-                    console.log('Populando sintetico ', rowSintetico)
+            let promise = getInfoRelatorios(sql, db)
+            promises.push(promise)                
+        })        
 
-                    let promise = popularSinteticoExcel(result, worksheet, rowSintetico++)
-                    promises.push(promise)                                
-                })                             
-        })
+        Promise.all(promises)
 
-        console.log('Total promises processadads: ', promises.length)
+        .then((result) => {
 
-        return resolve(Promise.all(promises))
-        
-    })
-        
+            console.log('Total promises DB processadads: ', promises.length, result.length)
+            
+            let promisess = []
+            let promisee = popularSinteticoExcel(result, worksheet, rowSintetico++)
 
+            promisess.push(promisee)
+
+            Promise.all(promisess)
+            .then(() => {
+
+                console.log('Total promises EXCEL processadads: ', promisess.length)
+                resolve()
+
+            })
+            
+        })                             
+    })        
 }
 
 /*************************
