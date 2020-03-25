@@ -353,6 +353,8 @@ function finalizaRelatorio(datetime, filename, db){
  **********************/
 
 function geraRelatorioMultiple(req, db){
+
+    console.log(req.body.sqlsTotal)
         
     startSinteticoExcel()
 
