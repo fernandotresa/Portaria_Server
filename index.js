@@ -281,9 +281,7 @@ async function popularExcel(result, worksheet){
     })    
 }
 
-async function popularSinteticoExcel(result, worksheet){
-
-    console.log(worksheet)
+async function popularSinteticoExcel(result, worksheet){    
 
     return new Promise(function(resolve){    
         
@@ -363,34 +361,34 @@ function geraRelatorioMultiple(req, db){
             var worksheet = workbook.getWorksheet('Relatório')
             let sqls = req.body.sql
             let array = sqls.split(";");
-
+            
             array.forEach((sql) => {  
                 
-                if(sql && sql.length > 0){
-
-                    getInfoRelatorios(sql, db)
+                getInfoRelatorios(sql, db)
 
                     .then((result) => {
         
                         let promise = popularSinteticoExcel(result, worksheet)
                         promises.push(promise)                                
-                    })
-
-
-                }
-
-                
+                    })                
             })
 
-            salvaExcel(req, workbook)
-            .then((filename) => {
+            Promise.all(promises)
+            .then(() => {
 
-                finalizaRelatorio(datetime, filename, db)
+                salvaExcel(req, workbook)
+                .then((filename) => {
 
-                .then(() => {                           
-                    console.log('Relatório finalizado: ', filename)
-                })                
-            })                          
+                    finalizaRelatorio(datetime, filename, db)
+
+                    .then(() => {                           
+                        console.log('Relatório finalizado: ', filename)
+                    })                
+                })
+
+            })
+
+                                      
         })       
     })    
 }
