@@ -283,6 +283,8 @@ async function popularExcel(result, worksheet){
 
 async function popularSinteticoExcel(result, worksheet){
 
+    console.log(worksheet)
+
     return new Promise(function(resolve){    
         
         let promises = []
@@ -351,6 +353,7 @@ function geraRelatorioMultiple(req, db){
     let promises = []
 
     startSinteticoExcel()
+
     .then((workbook) => {
         
         salvaRelatorio(req, db)
