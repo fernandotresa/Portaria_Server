@@ -133,10 +133,8 @@ function startSinteticoExcel(){
         var worksheet = workbook.addWorksheet('Relatório');
 
         worksheet.columns = [
-            { header: 'Nome', key: 'nome', width: 25 },
-            { header: 'Ponto', key: 'ponto', width: 25 },
-            { header: 'Total', key: 'total', width: 25 },
-            { header: 'Total Final', key: 'final', width: 25 }
+            { header: 'Nome', key: 'nome', width: 25 },            
+            { header: 'Total', key: 'total', width: 25 }
         ];   
         
         resolve(workbook)
@@ -294,14 +292,14 @@ async function popularSinteticoExcel(result, worksheet){
             let promise = new Promise(function(resolveExcel){ 
 
                 let element = result[i]  
-                
-                console.log(element.FUNCIONARIO, element.TOTAL_UNICO)
     
                 let row = {
                     id: i, 
                     nome: element.FUNCIONARIO,
                     total: element.TOTAL_UNICO,
                 }
+
+                console.log(row)
 
                 worksheet.addRow(row)                                                            
                 resolveExcel()
