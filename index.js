@@ -365,7 +365,7 @@ function geraRelatorioMultiple(req, db){
 
             console.log('Iniciando populate sync ')
             
-            populateSync(array, workbook, db, rowSintetico)
+            populateSync(array, worksheet, db, rowSintetico)
             .then(() => {
 
                 console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico, promises.length)
