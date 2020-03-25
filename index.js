@@ -12,7 +12,7 @@ const ExcelJS = require('exceljs');
 const diretorioRelatorios = "/home/portaria/relatorios/"
 
 app.use(logger('dev'));
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.json({limit: '250mb'}));
 app.use(methodOverride());
 app.use(cors());
 
@@ -154,10 +154,6 @@ function geraRelatorio(req, db){
         .then((datetime) => {
 
             var worksheet = workbook.getWorksheet('Relatório')
-
-
-            console.log(req.body.sql)
-
             getInfoRelatorios(req.body.sql, db)
 
             .then((result) => {
