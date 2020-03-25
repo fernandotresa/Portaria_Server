@@ -294,14 +294,13 @@ async function popularSinteticoExcel(result, worksheet){
             let promise = new Promise(function(resolveExcel){ 
 
                 let element = result[i]  
-                console.log(element)
+                
+                console.log(element.FUNCIONARIO, element.TOTAL_UNICO)
     
                 let row = {
                     id: i, 
                     nome: element.FUNCIONARIO,
-                    total: element.TOTAL_UNICO,                                         
-                    ponto: element.PONTO_NAME,
-                    final: element.TOTAL_ACESSO
+                    total: element.TOTAL_UNICO,
                 }
 
                 worksheet.addRow(row)                                                            
