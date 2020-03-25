@@ -191,10 +191,6 @@ function getInfoRelatorios(sql, db){
       // log_(sql)
 
        db.query(sql, function (err, result) {        
-            if (err){
-                reject(err);
-            }
-
             resolve(result)
 
         });
@@ -387,9 +383,7 @@ function populateSync(array, worksheet, db, rowSintetico){
 
         array.forEach((sql) => {  
     
-            if(sql && sql.length > 0){
-    
-                getInfoRelatorios(sql, db)
+            getInfoRelatorios(sql, db)
     
                 .then((result) => {
                             
@@ -397,11 +391,7 @@ function populateSync(array, worksheet, db, rowSintetico){
 
                     let promise = popularSinteticoExcel(result, worksheet, rowSintetico++)
                     promises.push(promise)                                
-                })                
-            }
-            else {
-                console.log('Ignorando ', sql)
-            }                                
+                })                             
         })
 
         console.log('Total promises processadads: ', promises.length)
