@@ -284,31 +284,23 @@ async function popularExcel(result, worksheet){
 async function popularSinteticoExcel(result, worksheet, rowSintetico){    
 
     return new Promise(function(resolve){    
-        
-        let promises = []
-
-        result.forEach(element => {
-            
-            let promise = new Promise(function(resolveExcel){ 
     
-                let row = {
-                    id: rowSintetico, 
-                    nome: element.FUNCIONARIO,
-                    total: element.TOTAL_UNICO,
-                }
+        result.forEach(() => {
 
-                console.log(row)
+            let element = result[i]  
+    
+            let row = {
+                id: rowSintetico, 
+                nome: element.FUNCIONARIO,
+                total: element.TOTAL_UNICO,
+            }
 
-                worksheet.addRow(row)                                                            
-                resolveExcel()
-            })
-            
+            console.log(row)
 
-            promises.push(promise)
-        }
+            worksheet.addRow(row)                                      
+        })                    
 
-
-     return resolve(Promise.all(promises))
+     return resolve()
         
     })    
 }
@@ -364,7 +356,7 @@ function geraRelatorioMultiple(req, db){
             console.log('Iniciando populate sync ')
             
             populateSync(array, worksheet, db, rowSintetico)
-
+            
             .then(() => {
 
                 console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico, promises.length)
