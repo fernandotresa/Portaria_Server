@@ -285,9 +285,7 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
 
     return new Promise(function(resolve){    
     
-        result.forEach(() => {
-
-            let element = result[i]  
+        result.forEach((element) => {
     
             let row = {
                 id: rowSintetico, 
