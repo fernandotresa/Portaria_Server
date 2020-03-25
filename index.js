@@ -340,32 +340,40 @@ function geraRelatorioMultiple(req, db){
             let rowSintetico = 0
         
             var worksheet = workbook.getWorksheet('Relatório')
+            let sqlsTotal = req.body.sqlsTotal
             let sqls = req.body.sql
-            let array = sqls.split(";");
-
-            console.log('Iniciando geração do relatório ', datetime)            
-
-            populateSync(array, worksheet, db, rowSintetico)             
-
-            .then(() => {
-                                    
-                salvaExcel(req, workbook)
-
-                .then((filename) => {
-
-                    finalizaRelatorio(datetime, filename, db)
-                    .then(() => {                           
-                        console.log('Relatório finalizado: ', filename)
-                    })                
-                })
-
-                .catch(() => {
-
-                    console.error('Falha ao criar excel')
-                })
-
-            })
             
+            let array = sqls.split(";");
+            let arrayTotal = sqlsTotal.split(";");
+
+            log_('Iniciando geração do relatório ' + datetime + ". Total de consultas de colaborador ou visitante: " + array.length + ". Total de consulta para os pontos: " + arrayTotal.length)          
+
+            populateSync(arrayTotal, worksheet, db, rowSintetico)
+            .then(() => {
+
+                populateSync(array, worksheet, db, rowSintetico)
+
+                .then(() => {
+                                        
+                    salvaExcel(req, workbook)
+
+                    .then((filename) => {
+
+                        finalizaRelatorio(datetime, filename, db)
+                        .then(() => {                           
+                            log_('Relatório finalizado: ' + filename)
+                        })                
+                    })
+
+                    .catch(() => {
+
+                        log_('Falha ao criar excel: ' + datetime)
+                    })
+
+                })
+
+
+            })                        
         })    
                         
     })          
