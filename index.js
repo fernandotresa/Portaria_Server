@@ -125,6 +125,25 @@ function startExcel(){
     })    
 }
 
+function startSinteticoExcel(){
+
+    return new Promise(function(resolve){ 
+
+        var workbook = new ExcelJS.Workbook();
+        var worksheet = workbook.addWorksheet('Relatório');
+
+        worksheet.columns = [
+            { header: 'Nome', key: 'nome', width: 25 },
+            { header: 'Ponto', key: 'ponto', width: 25 },
+            { header: 'Total', key: 'total', width: 25 },
+            { header: 'Total Final', key: 'final', width: 25 }
+        ];   
+        
+        resolve(workbook)
+
+    })    
+}
+
 function geraRelatorio(req, db){
         
     let promises = []
@@ -264,6 +283,40 @@ async function popularExcel(result, worksheet){
     })    
 }
 
+async function popularSinteticoExcel(result, worksheet){
+
+    return new Promise(function(resolve){    
+        
+        let promises = []
+
+        for(var i = 0; i < result.length; i++){  
+            
+            let promise = new Promise(function(resolveExcel){ 
+
+                let element = result[i]  
+    
+                let row = {
+                    id: i, 
+                    nome: element.FUNCIONARIO,
+                    total: element.TOTAL_ACESSO,                                         
+                    ponto: element.PONTO_NAME,
+                    final: element.TOTAL_ACESSO
+                }
+
+                worksheet.addRow(row)                                                            
+                resolveExcel()
+            })
+            
+
+            promises.push(promise)
+        }
+
+
+     return resolve(Promise.all(promises))
+        
+    })    
+}
+
 function finalizaRelatorio(datetime, filename, db){
 
     return new Promise(function(resolve, reject){         
@@ -299,7 +352,7 @@ function geraRelatorioMultiple(req, db){
         
     let promises = []
 
-    startExcel()
+    startSinteticoExcel()
     .then((workbook) => {
         
         salvaRelatorio(req, db)
@@ -318,7 +371,7 @@ function geraRelatorioMultiple(req, db){
 
                     .then((result) => {
         
-                        let promise = popularExcel(result, worksheet)
+                        let promise = popularSinteticoExcel(result, worksheet)
                         promises.push(promise)                                
                     })
 
