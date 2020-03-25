@@ -281,7 +281,7 @@ async function popularExcel(result, worksheet){
     })    
 }
 
-async function popularSinteticoExcel(result, worksheet){    
+async function popularSinteticoExcel(result, worksheet, rowSintetico){    
 
     return new Promise(function(resolve){    
         
@@ -294,7 +294,7 @@ async function popularSinteticoExcel(result, worksheet){
                 let element = result[i]  
     
                 let row = {
-                    id: i, 
+                    id: rowSintetico++, 
                     nome: element.FUNCIONARIO,
                     total: element.TOTAL_UNICO,
                 }
@@ -349,6 +349,7 @@ function finalizaRelatorio(datetime, filename, db){
 function geraRelatorioMultiple(req, db){
         
     let promises = []
+    let rowSintetico = 0
 
     startSinteticoExcel()
 
@@ -370,7 +371,7 @@ function geraRelatorioMultiple(req, db){
 
                     .then((result) => {
         
-                        let promise = popularSinteticoExcel(result, worksheet)
+                        let promise = popularSinteticoExcel(result, worksheet, rowSintetico)
                         promises.push(promise)                                
                     })                
 
@@ -382,6 +383,9 @@ function geraRelatorioMultiple(req, db){
             Promise.all(promises)
             .then(() => {
 
+
+                console.log('Finalizado. Salvando arquivo.')
+                
                 salvaExcel(req, workbook)
                 .then((filename) => {
 
