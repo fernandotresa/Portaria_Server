@@ -364,7 +364,7 @@ function geraRelatorioMultiple(req, db){
                         console.log('Relatório finalizado: ', filename)
                     })                
                 })
-                
+
                 .catch(() => {
                     console.error('Falha ao criar excel')
                 })
@@ -394,11 +394,12 @@ function populateSync(array, worksheet, db, rowSintetico){
         .then((result) => {
 
             console.log('Total promises DB processadads: ', promises.length, result.length)
-            
             let promisess = []
-            let promisee = popularSinteticoExcel(result, worksheet, rowSintetico++)
-
-            promisess.push(promisee)
+            
+            result.forEach((element) => {                
+                let promisee = popularSinteticoExcel(element, worksheet, rowSintetico++)
+                promisess.push(promisee)               
+            })
 
             Promise.all(promisess)
             .then(() => {
@@ -406,8 +407,7 @@ function populateSync(array, worksheet, db, rowSintetico){
                 console.log('Total promises EXCEL processadads: ', promisess.length)
                 resolve()
 
-            })
-            
+            })                        
         })                             
     })        
 }
