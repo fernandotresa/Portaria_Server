@@ -294,7 +294,7 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
                 let element = result[i]  
     
                 let row = {
-                    id: rowSintetico++, 
+                    id: rowSintetico, 
                     nome: element.FUNCIONARIO,
                     total: element.TOTAL_UNICO,
                 }
@@ -371,6 +371,9 @@ function geraRelatorioMultiple(req, db){
 
                     .then((result) => {
         
+                        rowSintetico++
+                        console.log(rowSintetico)
+
                         let promise = popularSinteticoExcel(result, worksheet, rowSintetico)
                         promises.push(promise)                                
                     })                
