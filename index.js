@@ -294,6 +294,7 @@ async function popularSinteticoExcel(result, worksheet){
             let promise = new Promise(function(resolveExcel){ 
 
                 let element = result[i]  
+                console.log(element)
     
                 let row = {
                     id: i, 
