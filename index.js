@@ -111,7 +111,7 @@ function startExcel(){
         worksheet.columns = [
             { header: 'Data', key: 'data', width: 25 },
             { header: 'Hora', key: 'hora', width: 25 },
-            { header: 'Nome', key: 'nome', width: 25 },
+            { header: 'Nome', key: 'nome', width: 50 },
             { header: 'Ponto de acesso', key: 'ponto', width: 25 },
             { header: 'Tipo', key: 'tipo', width: 25 },
             { header: 'Setor', key: 'setor', width: 25 },
@@ -133,7 +133,7 @@ function startSinteticoExcel(){
         var worksheet = workbook.addWorksheet('Relatório');
 
         worksheet.columns = [
-            { header: 'Nome', key: 'nome', width: 25 },            
+            { header: 'Nome', key: 'nome', width: 50 },            
             { header: 'Total', key: 'total', width: 25 }
         ];   
         
@@ -279,6 +279,8 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
     
         if(result && result.length > 0){
 
+            worksheet.addRow()
+
             result.forEach((element) => {
 
                 let row;
@@ -310,7 +312,7 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
                     }
                 }                    
                         
-                worksheet.addRow(row)                                      
+                worksheet.addRow(row)                                 
             })                    
 
         }
