@@ -359,45 +359,48 @@ function geraRelatorioMultiple(req, db){
 
         .then((datetime) => {
 
-            var worksheet = workbook.getWorksheet('Relatório')
-            let sqls = req.body.sql
-            let array = sqls.split(";");
-            
-            array.forEach((sql) => {  
+            return new Promise(function(resolve) {
 
-                if(sql && sql.length > 0){
-
-                    getInfoRelatorios(sql, db)
-
-                    .then((result) => {
-                                
-                        let promise = popularSinteticoExcel(result, worksheet, rowSintetico++)
-                        promises.push(promise)                                
-                    })                
-
-                }
+                var worksheet = workbook.getWorksheet('Relatório')
+                let sqls = req.body.sql
+                let array = sqls.split(";");
                 
-                
-            })  
-            
-            Promise.all(promises)
-            .then(() => {
+                array.forEach((sql) => {  
 
+                    if(sql && sql.length > 0){
 
-                console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico)
-                
-                salvaExcel(req, workbook)
-                .then((filename) => {
+                        getInfoRelatorios(sql, db)
 
-                    finalizaRelatorio(datetime, filename, db)
+                        .then((result) => {
+                                    
+                            let promise = popularSinteticoExcel(result, worksheet, rowSintetico++)
+                            promises.push(promise)                                
+                        })                
+                    }                                
+                }) 
 
-                    .then(() => {                           
-                        console.log('Relatório finalizado: ', filename)
-                    })                
+                Promise.all(promises)
+                .then(() => {
+
+                    console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico)
+                        
+                    salvaExcel(req, workbook)
+                    .then((filename) => {
+        
+                        finalizaRelatorio(datetime, filename, db)
+        
+                        .then(() => {                           
+                            console.log('Relatório finalizado: ', filename)
+                            resolve()
+                        })                
+                    })
+
+                    
                 })
 
-            })
-        })       
+            })                                     
+        })    
+                        
     })          
 }
 
