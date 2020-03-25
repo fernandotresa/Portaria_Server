@@ -279,8 +279,6 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
     
         if(result && result.length > 0){
 
-            worksheet.addRow()
-
             result.forEach((element) => {
 
                 let row;
@@ -373,8 +371,13 @@ function geraRelatorioMultiple(req, db){
 
             log_('Iniciando geração do relatório ' + datetime + ". Total de consultas de colaborador ou visitante: " + array.length + ". Total de consulta para os pontos: " + arrayTotal.length)          
 
+            worksheet.addRow()
+
             populateSync(arrayTotal, worksheet, db, rowSintetico)
             .then(() => {
+
+                worksheet.addRow()
+                worksheet.addRow()
 
                 populateSync(array, worksheet, db, rowSintetico)
 
