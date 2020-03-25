@@ -298,7 +298,7 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
             worksheet.addRow(row)                                      
         })                    
 
-     resolve()
+     return resolve()
         
     })    
 }
@@ -393,14 +393,20 @@ function populateSync(array, worksheet, db, rowSintetico){
     
                 .then((result) => {
                             
+                    console.log('Populando sintetico ', rowSintetico)
+
                     let promise = popularSinteticoExcel(result, worksheet, rowSintetico++)
                     promises.push(promise)                                
                 })                
+            }
+            else {
+                console.log('Ignorando ', sql)
             }                                
         })
 
         console.log('Total promises processadads: ', promises.length)
-        return Promise.all(promises)
+
+        return resolve(Promise.all(promises))
         
     })
         
