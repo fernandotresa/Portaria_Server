@@ -190,7 +190,7 @@ function getInfoRelatorios(sql, db){
 
     return new Promise(function(resolve, reject){       
       
-       log_(sql)
+      // log_(sql)
 
        db.query(sql, function (err, result) {        
             if (err){
@@ -213,7 +213,7 @@ function salvaRelatorio(req, db){
         var sql = "INSERT INTO relatorios (datetime, dataInicio, dataFim) \
                 VALUES ('" + datetime + "', '" + req.body.dataInicial + "', '" + req.body.dataFinal + "')"
 
-        log_(sql)
+        //log_(sql)
         
         db.query(sql, function (err, result) {        
             if (err) reject(err);
@@ -299,7 +299,7 @@ async function popularSinteticoExcel(result, worksheet){
                 let row = {
                     id: i, 
                     nome: element.FUNCIONARIO,
-                    total: element.TOTAL_ACESSO,                                         
+                    total: element.TOTAL_UNICO,                                         
                     ponto: element.PONTO_NAME,
                     final: element.TOTAL_ACESSO
                 }
@@ -328,7 +328,7 @@ function finalizaRelatorio(datetime, filename, db){
                 status = 'Finalizado' \
             WHERE datetime = '" + datetime + "'"
 
-        log_(sql)
+        //log_(sql)
 
         
         
