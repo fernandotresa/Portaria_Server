@@ -280,12 +280,35 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
         if(result && result.length > 0){
 
             result.forEach((element) => {
-    
-                let row = {
-                    id: rowSintetico, 
-                    nome: element.FUNCIONARIO,
-                    total: element.TOTAL_UNICO,
+
+                let row;
+
+                if(element.FUNCIONARIO){
+
+                    row = {
+
+                        id: rowSintetico, 
+                        nome: element.FUNCIONARIO,
+                        total: element.TOTAL_UNICO,
+                    }
                 }
+                else if(element.VISITANTE){
+
+                    row = {
+
+                        id: rowSintetico, 
+                        nome: element.VISITANTE,
+                        total: element.TOTAL_UNICO,
+                    }
+                }
+                else {
+
+                    row = {
+                        id: rowSintetico, 
+                        nome: element.PONTO_NAME,
+                        total: element.TOTAL_ACESSO,
+                    }
+                }                    
                         
                 worksheet.addRow(row)                                      
             })                    
