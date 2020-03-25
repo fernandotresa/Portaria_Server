@@ -370,11 +370,8 @@ function geraRelatorioMultiple(req, db){
                     getInfoRelatorios(sql, db)
 
                     .then((result) => {
-        
-                        rowSintetico++
-                        console.log(rowSintetico)
-
-                        let promise = popularSinteticoExcel(result, worksheet, rowSintetico)
+                                
+                        let promise = popularSinteticoExcel(result, worksheet, rowSintetico++)
                         promises.push(promise)                                
                     })                
 
@@ -387,7 +384,7 @@ function geraRelatorioMultiple(req, db){
             .then(() => {
 
 
-                console.log('Finalizado. Salvando arquivo.')
+                console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico)
                 
                 salvaExcel(req, workbook)
                 .then((filename) => {
