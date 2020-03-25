@@ -378,29 +378,27 @@ function geraRelatorioMultiple(req, db){
                 }
                 
                 
-            })
-
-            Promise.all(promises)
-            .then(() => {
-
-
-                console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico)
-                
-                salvaExcel(req, workbook)
-                .then((filename) => {
-
-                    finalizaRelatorio(datetime, filename, db)
-
-                    .then(() => {                           
-                        console.log('Relatório finalizado: ', filename)
-                    })                
-                })
-
-            })
-
-                                      
+            })                                                  
         })       
-    })    
+    })  
+    
+    Promise.all(promises)
+    .then(() => {
+
+
+        console.log('Finalizado. Salvando arquivo. Total linhas salvas: ', rowSintetico)
+        
+        salvaExcel(req, workbook)
+        .then((filename) => {
+
+            finalizaRelatorio(datetime, filename, db)
+
+            .then(() => {                           
+                console.log('Relatório finalizado: ', filename)
+            })                
+        })
+
+    })
 }
 
 /*************************
