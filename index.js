@@ -281,20 +281,25 @@ async function popularSinteticoExcel(result, worksheet, rowSintetico){
 
     return new Promise(function(resolve){    
     
-        result.forEach((element) => {
+        if(result && result.length > 0){
+
+            result.forEach((element) => {
     
-            let row = {
-                id: rowSintetico, 
-                nome: element.FUNCIONARIO,
-                total: element.TOTAL_UNICO,
-            }
+                let row = {
+                    id: rowSintetico, 
+                    nome: element.FUNCIONARIO,
+                    total: element.TOTAL_UNICO,
+                }
+    
+                console.log(row)
+    
+                worksheet.addRow(row)                                      
+            })                    
+    
+         return resolve()
 
-            console.log(row)
-
-            worksheet.addRow(row)                                      
-        })                    
-
-     return resolve()
+        }
+        
         
     })    
 }
