@@ -27,7 +27,7 @@ function log_(str){
  ****************************/
 
 var db_config = {
-    host: "10.0.2.239",
+    host: "10.9.0.8",
     user: "root",
     password: "Mudaragora00",
     database: "zoologico",
@@ -378,6 +378,9 @@ function geraRelatorioMultiple(req, db){
                         console.log('Relatório finalizado: ', filename)
                     })                
                 })
+                .catch(() => {
+                    console.error('Falha ao criar excel')
+                })
 
             })
                                                     
@@ -394,6 +397,8 @@ function populateSync(array, worksheet, db){
         let promises = []
 
         array.forEach((sql) => {  
+
+            console.log(sql)
     
             if(sql && sql.length > 0){
     
