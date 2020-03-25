@@ -348,9 +348,6 @@ function finalizaRelatorio(datetime, filename, db){
 
 function geraRelatorioMultiple(req, db){
         
-    let promises = []
-    let rowSintetico = 0
-
     startSinteticoExcel()
 
     .then((workbook) => {
@@ -361,6 +358,9 @@ function geraRelatorioMultiple(req, db){
 
             return new Promise(function(resolve) {
 
+                let promises = []
+                let rowSintetico = 0
+            
                 var worksheet = workbook.getWorksheet('Relatório')
                 let sqls = req.body.sql
                 let array = sqls.split(";");
