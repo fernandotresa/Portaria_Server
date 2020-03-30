@@ -250,8 +250,8 @@ async function popularExcel(result, worksheet){
     
                 let row = {
                     id: i, 
-                    data: element.datahora, 
-                    hora: element.datahora, 
+                    data: moment(element.datahora).format("DD/MM/YYYY"), 
+                    hora: moment(element.datahora).format("hh:mm:ss"), 
                     nome: element.FUNCIONARIO,
                     ponto: element.PONTO,
                     tipo: element.tipo, 
@@ -353,8 +353,6 @@ function finalizaRelatorio(datetime, filename, db){
  **********************/
 
 function geraRelatorioMultiple(req, db){
-
-    console.log(req.body.sqls)
         
     startSinteticoExcel()
 
