@@ -27,7 +27,7 @@ function log_(str){
  ****************************/
 
 var db_config = {
-    host: "10.9.0.8",
+    host: "3.212.93.86",
     user: "root",
     password: "Mudaragora00",
     database: "zoologico",
@@ -247,6 +247,12 @@ async function popularExcel(result, worksheet){
             let promise = new Promise(function(resolveExcel){ 
 
                 let element = result[i]  
+
+                let name = element.FUNCIONARIO
+
+                if(!name || name.length === 0){
+                    name = element.VISITANTE
+                }
     
                 let row = {
                     id: i, 
