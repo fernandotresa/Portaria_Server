@@ -248,20 +248,17 @@ async function popularExcel(result, worksheet){
 
                 let element = result[i]  
 
-                let name = ""
+                let name = element.FUNCIONARIO
 
-                if(element.FUNCIONARIO){
-                    name = element.FUNCIONARIO
-                }
-                else {
+                if(element.VISITANTE){
                     name = element.VISITANTE
-                }
+                }                
     
                 let row = {
                     id: i, 
                     data: moment(element.datahora).format("DD/MM/YYYY"), 
                     hora: moment(element.datahora).format("hh:mm:ss"), 
-                    nome: element.name,
+                    nome: name,
                     ponto: element.PONTO,
                     tipo: element.tipo, 
                     setor: element.SETOR, 
@@ -2985,7 +2982,10 @@ app.post('/runQueryReports', function(req, res) {
 })
 
 
-
+process.on('SIGINT', function() {
+    console.log("Caught interrupt signal");
+    process.exit();
+});
 
 
 http.listen(8085);
