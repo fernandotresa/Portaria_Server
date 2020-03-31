@@ -256,12 +256,12 @@ async function popularExcel(result, worksheet){
 
 
                 console.log(element.datahora)
-                console.log(moment.tz(element.datahora, 'America/Sao_Paulo').format())
+                console.log(moment.utc(element.datahora).format())
     
                 let row = {
                     id: i, 
-                    data: moment.tz(element.datahora, 'America/Sao_Paulo').format("DD/MM/YYYY"), 
-                    hora: moment.tz(element.datahora, 'America/Sao_Paulo').format("hh:mm:ss"), 
+                    data: moment.utc(element.datahora).format("DD/MM/YYYY"), 
+                    hora: moment.utc(element.datahora).format("hh:mm:ss"), 
                     nome: name,
                     ponto: element.PONTO,
                     tipo: element.tipo, 
