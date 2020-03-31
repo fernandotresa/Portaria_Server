@@ -254,10 +254,14 @@ async function popularExcel(result, worksheet){
                     name = element.VISITANTE
                 }                
 
+
+                console.log(element.datahora)
+                console.log(moment(element.datahora).tz('America/Sao_Paulo').format())
+    
                 let row = {
                     id: i, 
-                    data: moment(element.datahora).utc(true).format("DD/MM/YYYY"), 
-                    hora: moment(element.datahora).utc(true).format("hh:mm:ss"), 
+                    data: moment(element.datahora).tz('America/Sao_Paulo').format("DD/MM/YYYY"), 
+                    hora: moment(element.datahora).tz('America/Sao_Paulo').format("hh:mm:ss"), 
                     nome: name,
                     ponto: element.PONTO,
                     tipo: element.tipo, 
