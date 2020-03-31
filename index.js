@@ -9,7 +9,7 @@ let cors = require('cors');
 var moment = require('moment-timezone');
 const ExcelJS = require('exceljs');
 
-const diretorioRelatorios = "/home/portaria/relatorios/"
+const diretorioRelatorios = "./relatorios/"
 
 app.use(logger('dev'));
 app.use(bodyParser.json({limit: '250mb'}));
