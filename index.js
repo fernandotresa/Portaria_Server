@@ -248,9 +248,12 @@ async function popularExcel(result, worksheet){
 
                 let element = result[i]  
 
-                let name = element.FUNCIONARIO
+                let name = ""
 
-                if(!name || name.length === 0){
+                if(element.FUNCIONARIO){
+                    name = element.FUNCIONARIO
+                }
+                else {
                     name = element.VISITANTE
                 }
     
@@ -258,7 +261,7 @@ async function popularExcel(result, worksheet){
                     id: i, 
                     data: moment(element.datahora).format("DD/MM/YYYY"), 
                     hora: moment(element.datahora).format("hh:mm:ss"), 
-                    nome: element.FUNCIONARIO,
+                    nome: element.name,
                     ponto: element.PONTO,
                     tipo: element.tipo, 
                     setor: element.SETOR, 
