@@ -261,7 +261,7 @@ async function popularExcel(result, worksheet){
                 let row = {
                     id: i, 
                     data: moment.utc(element.datahora).format("DD/MM/YYYY"), 
-                    hora: moment.utc(element.datahora).format("hh:mm:ss"), 
+                    hora: moment.utc(element.datahora).format("hh:mm:ss A"), 
                     nome: name,
                     ponto: element.PONTO,
                     tipo: element.tipo, 
