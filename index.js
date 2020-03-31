@@ -253,6 +253,10 @@ async function popularExcel(result, worksheet){
                 if(element.VISITANTE){
                     name = element.VISITANTE
                 }                
+
+
+                console.log(element.datahora)
+                console.log(moment(element.datahora).format())
     
                 let row = {
                     id: i, 
