@@ -190,6 +190,7 @@ function getInfoRelatorios(sql, db){
                 reject()
             }
 
+            console.log(sql)
             resolve(result)
         });
 
