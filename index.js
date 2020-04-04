@@ -268,7 +268,7 @@ async function popularExcel(result, worksheet){
                     placa: element.placa
                 }
 
-                console.log(row)
+                //console.log(row)
                 worksheet.addRow(row)                                                            
                 resolveExcel()
             })
