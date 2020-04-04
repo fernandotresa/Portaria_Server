@@ -190,7 +190,7 @@ function getInfoRelatorios(sql, db){
                 reject()
             }
 
-            console.log(sql)
+            //console.log(sql)
             resolve(result)
         });
 
@@ -268,6 +268,7 @@ async function popularExcel(result, worksheet){
                     placa: element.placa
                 }
 
+                console.log(row)
                 worksheet.addRow(row)                                                            
                 resolveExcel()
             })
