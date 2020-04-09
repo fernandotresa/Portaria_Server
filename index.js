@@ -379,7 +379,7 @@ function geraRelatorioMultiple(req, db){
             let array = sqls.split(";");
             let arrayTotal = sqlsTotal.split(";");
 
-            log_('Iniciando geração do relatório ' + datetime + ". Total de consultas de colaborador ou visitante: " + array.length + ". Total de consulta para os pontos: " + arrayTotal.length)          
+            //log_('Iniciando geração do relatório ' + datetime + ". Total de consultas de colaborador ou visitante: " + array.length + ". Total de consulta para os pontos: " + arrayTotal.length)          
 
             worksheet.addRow()
 
@@ -436,7 +436,7 @@ function populateSync(array, worksheet, db, rowSintetico){
 
         .then((result) => {
 
-            console.log('Total de consultas processadas: ', promises.length, result.length)
+            //console.log('Total de consultas processadas: ', promises.length, result.length)
 
             let promisess = []
             
@@ -448,8 +448,7 @@ function populateSync(array, worksheet, db, rowSintetico){
             Promise.all(promisess)
             .then(() => {
 
-                console.log('Total entradas no EXCEL processadads: ', promisess.length)
-
+                //console.log('Total entradas no EXCEL processadads: ', promisess.length)
                 resolve()
 
             })                        
